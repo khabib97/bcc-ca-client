@@ -8,7 +8,7 @@ namespace BCC_CA_App_Service
     {
         static String deploymentMode = "Dev"; // Prod, Dev, Test
         public static String generationMode; // pub-priv key or certificate 
-        public static int serverGeneratedEnrollmentID;
+        public static String serverGeneratedEnrollmentID;
         public static String baseRemoteURL;
         public static int keyStoreType;
 
@@ -18,41 +18,24 @@ namespace BCC_CA_App_Service
             Handler handler = new Handler();
             NetworkHandler networkHandler = new NetworkHandler();
             Pkcs1xHandler pkcs1xHandler = new Pkcs1xHandler();
+            InputHandler inputHandler = new InputHandler();
 
             try
             {
-                if (deploymentMode.Equals("Prod")){
-                    if (args.Length.Equals(0) || !args.Length.Equals(4))
-                    {
-                        throw new System.ArgumentException("Invalid number of arguments");
-                    }
-
-                    generationMode = args[0];
-                    serverGeneratedEnrollmentID = Int32.Parse(args[1]);
-                    baseRemoteURL = args[2];
-                    keyStoreType = Int32.Parse(args[3]);
-
-                    Console.WriteLine("1 :" + args[0] + " 2 :" + args[1] + " 3 :" + args[2] + " 4 :" + args[3]);
-                } else if (deploymentMode.Equals("Dev")){
-                    generationMode = "key";
-                    serverGeneratedEnrollmentID = 26014;
-                    keyStoreType = 2;
-                    Constants.ENROLLMENT_ID = serverGeneratedEnrollmentID;
-                    Console.WriteLine("1 :" + generationMode  + " 2 :"+ serverGeneratedEnrollmentID + " 3 :"+ baseRemoteURL + " 4 :"+ keyStoreType);
-                }
-
-                switch (generationMode)
+                while (true)
                 {
-                    case Constants.GeneratedTypeCertificateOrKey.CERTIFICATE:
-                        handler.CertificateGenerator(serverGeneratedEnrollmentID);
-                        break;
-                    case Constants.GeneratedTypeCertificateOrKey.KEY:
-                        handler.KeyGenerator(serverGeneratedEnrollmentID);
-                        break;
+                    serverGeneratedEnrollmentID = inputHandler.GetEnrollmentID();
+                    generationMode = inputHandler.GetGenerationMode();
+                    switch (generationMode)
+                    {
+                        case Constants.GeneratedTypeCertificateOrKey.CERTIFICATE:
+                            handler.CertificateGenerator(long.Parse(serverGeneratedEnrollmentID));
+                            break;
+                        case Constants.GeneratedTypeCertificateOrKey.KEY:
+                            handler.KeyGenerator(long.Parse(serverGeneratedEnrollmentID));
+                            break;
+                    }
                 }
-
-                
-
             }
             catch (Exception ex){
                 System.Diagnostics.Debug.WriteLine( "Error : " + ex );

@@ -6,6 +6,7 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Math;
 
 namespace BCC_CA_App_Service.App
 {
@@ -36,11 +37,12 @@ namespace BCC_CA_App_Service.App
         }
 
         //Write Private Key to Smard Card
-        public void ImportPrivateKeyToSmartCard(Session session, Pki pki) {
+        public void ImportPrivateKeyToSmartCard(Session session, Pki pki, long enrollmentID) {
 
+            BigInteger id = BigInteger.ValueOf(enrollmentID);
             RsaPrivateCrtKeyParameters rsaPrivKey = (RsaPrivateCrtKeyParameters)pki.asymmetricCipherKeyPair.Private;
             
-            byte[] ckaId = pki.temporaryX509Certificate.SerialNumber.ToByteArrayUnsigned();
+            byte[] ckaId = id.ToByteArrayUnsigned();
 
             List<ObjectAttribute> objectAttributes = new List<ObjectAttribute>();
             //Common attribute
@@ -49,7 +51,7 @@ namespace BCC_CA_App_Service.App
             objectAttributes.Add(new ObjectAttribute(CKA.CKA_LABEL, Constants.APPLICATION_NAME));
             objectAttributes.Add(new ObjectAttribute(CKA.CKA_KEY_TYPE, CKK.CKK_RSA));
             objectAttributes.Add(new ObjectAttribute(CKA.CKA_ID, ckaId));
-            objectAttributes.Add(new ObjectAttribute(CKA.CKA_SUBJECT, pki.temporaryX509Certificate.SubjectDN.ToString()));
+            objectAttributes.Add(new ObjectAttribute(CKA.CKA_SUBJECT, id.ToString()));
 
             //Must add this attribute to create objcet
             objectAttributes.Add(new ObjectAttribute(CKA.CKA_MODULUS, rsaPrivKey.Modulus.ToByteArrayUnsigned()));

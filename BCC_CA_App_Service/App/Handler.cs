@@ -8,7 +8,7 @@ namespace BCC_CA_App_Service.App
 {
     public class Handler
     {
-        public void KeyGenerator(int serverGeneratedEnrollmentID)
+        public void KeyGenerator(long serverGeneratedEnrollmentID)
         {
             NetworkHandler networkHandler = new NetworkHandler();
             SecurityHandler securityHandler = new SecurityHandler();
@@ -63,13 +63,13 @@ namespace BCC_CA_App_Service.App
             {
                 smartCardHandler.StartSmartCardSession(out smartCardSession);
 
-                smartCardHandler.ImportPrivateKeyToSmartCard(smartCardSession, pki);
+                smartCardHandler.ImportPrivateKeyToSmartCard(smartCardSession, pki, enrollmentDTO.ID);
 
                 smartCardHandler.DestroySmartCardSession(smartCardSession);
             }
         }
 
-        internal void CertificateGenerator(long erollmentID)
+        public void CertificateGenerator(long erollmentID)
         {
             NetworkHandler networkHandler = new NetworkHandler();
             Pkcs1xHandler pkcs1xHandler = new Pkcs1xHandler();

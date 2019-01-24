@@ -15,7 +15,7 @@ namespace BCC_CA_App_Service.App
             return null;
         }
 
-        public EnrollementDTO GetEnrollmentInfo( String apiEndpoint, int enrollmentID) {
+        public EnrollementDTO GetEnrollmentInfo( String apiEndpoint, long enrollmentID) {
             string html = string.Empty;
 
             String URL = requestProtocol + Constants.BASE_URL +"/"+ apiEndpoint + "?serialNo=" + enrollmentID + "&actionType=key"  ;

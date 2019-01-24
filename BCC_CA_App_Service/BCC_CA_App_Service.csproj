@@ -57,7 +57,6 @@
     <Compile Include="App\NetworkHandler.cs" />
     <Compile Include="App\Pkcs1xHandler.cs" />
     <Compile Include="App\Pki.cs" />
-    <Compile Include="App\ResourceHandler.cs" />
     <Compile Include="App\SecurityHandler.cs" />
     <Compile Include="App\SmartCardHandler.cs" />
     <Compile Include="App\Utility.cs" />
