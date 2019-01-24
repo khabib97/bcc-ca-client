@@ -6,13 +6,13 @@ namespace BCC_CA_App_Service.App
     {
         public String GetUserPassPhase() {
             Console.WriteLine("Please input your Pass-phase :");
-            return "User123";//Console.ReadLine();
+            return Console.ReadLine();
         }
 
         public String GetSmartCardPin()
         {
             Console.WriteLine("Please input smart card pin :");
-            return Constants._PIN = "User123$";//Console.ReadLine();
+            return Constants._PIN = Console.ReadLine();
         }
     }
 }

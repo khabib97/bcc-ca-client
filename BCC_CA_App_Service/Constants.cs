@@ -111,5 +111,7 @@ namespace BCC_CA_App_Service
         public const String APPLICATION_NAME = @"Pkcs11Interop";
         public static String PKCS11_LIBRARY_PATH = @"D:\cirtificate\x32\eTPKCS11.dll";
 
+        public static String BASE_URL = "bcc-ca.gov.bd";
+
     }
 }

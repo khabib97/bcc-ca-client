@@ -35,18 +35,23 @@ namespace BCC_CA_App_Service
                     Console.WriteLine("1 :" + args[0] + " 2 :" + args[1] + " 3 :" + args[2] + " 4 :" + args[3]);
                 } else if (deploymentMode.Equals("Dev")){
                     generationMode = "key";
-                    serverGeneratedEnrollmentID = 26012;
-                    baseRemoteURL = "bcc-ca.gov.bd";
+                    serverGeneratedEnrollmentID = 26014;
                     keyStoreType = 2;
                     Constants.ENROLLMENT_ID = serverGeneratedEnrollmentID;
                     Console.WriteLine("1 :" + generationMode  + " 2 :"+ serverGeneratedEnrollmentID + " 3 :"+ baseRemoteURL + " 4 :"+ keyStoreType);
                 }
 
-                handler.Generator(baseRemoteURL, Constants.PartialUrlOfApi.ENROLLMENT_INFO, serverGeneratedEnrollmentID, generationMode);
-                //String cert = networkHandler.GetCertificateByteArray(26007, "bcc-ca.gov.bd");
-                //pki.x509certificate = 
-                //pkcs1xHandler.GenerateCertificate(cert);
+                switch (generationMode)
+                {
+                    case Constants.GeneratedTypeCertificateOrKey.CERTIFICATE:
+                        handler.CertificateGenerator(serverGeneratedEnrollmentID);
+                        break;
+                    case Constants.GeneratedTypeCertificateOrKey.KEY:
+                        handler.KeyGenerator(serverGeneratedEnrollmentID);
+                        break;
+                }
 
+                
 
             }
             catch (Exception ex){

@@ -15,10 +15,10 @@ namespace BCC_CA_App_Service.App
             return null;
         }
 
-        public EnrollementDTO GetEnrollmentInfo(String baseUrl, String apiEndpoint, int enrollmentID, String generationMode) {
+        public EnrollementDTO GetEnrollmentInfo( String apiEndpoint, int enrollmentID) {
             string html = string.Empty;
 
-            String URL = requestProtocol + baseUrl +"/"+ apiEndpoint + "?serialNo=" + enrollmentID + "&actionType=" + generationMode;
+            String URL = requestProtocol + Constants.BASE_URL +"/"+ apiEndpoint + "?serialNo=" + enrollmentID + "&actionType=key"  ;
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
@@ -112,9 +112,9 @@ namespace BCC_CA_App_Service.App
 
         }
 
-        public String GetCertificateByteArray(long enrollementID, String baseUrl){
+        public String GetCertificateByteArray(long enrollementID){
 
-            String URL = requestProtocol + baseUrl + "/" + certificateUriLocation + "/" + enrollementID + Constants.FileExtension.CERTIFICATE;
+            String URL = requestProtocol + Constants.BASE_URL + "/" + certificateUriLocation + "/" + enrollementID + Constants.FileExtension.CERTIFICATE;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
@@ -128,7 +128,7 @@ namespace BCC_CA_App_Service.App
             
         }
 
-        public void PostCertificationRequest(String baseURL, long enrollmentID, int keyStoreType, Pkcs10CertificationRequest certificationSigningRequest)
+        public void PostCertificationRequest( long enrollmentID, int keyStoreType, Pkcs10CertificationRequest certificationSigningRequest)
         {
             PemObject pemObject = new PemObject("CERTIFICATE REQUEST", certificationSigningRequest.GetEncoded());
             StringWriter str = new StringWriter();
@@ -136,7 +136,7 @@ namespace BCC_CA_App_Service.App
             pemWriter.WriteObject(pemObject);
             String csr = str.ToString();
             str.Close();
-            String URL = requestProtocol + baseURL + "/" + Constants.PartialUrlOfApi.CRS + "?"
+            String URL = requestProtocol + Constants.BASE_URL + "/" + Constants.PartialUrlOfApi.CRS + "?"
                 + "csr=" + WebUtility.UrlEncode(csr) + "&serialNo=" + enrollmentID + "&keystoreType="
                 + keyStoreType + "&mode=csr"; ;
 
@@ -149,8 +149,7 @@ namespace BCC_CA_App_Service.App
             StreamReader streamReader = new StreamReader(stream);
             Console.WriteLine(streamReader.ReadToEnd());
 
-            System.Threading.Thread.Sleep(20000);
-
+            System.Threading.Thread.Sleep(3000);
         }
 
     }

@@ -50,17 +50,16 @@ namespace BCC_CA_App_Service.App
             return rsaKeyPairGenerator.GenerateKeyPair();
         }
 
-        public static Pkcs10CertificationRequest GenerateCertificateSigningRequest(EnrollementDTO enrollmentDTO){
+        public static Pkcs10CertificationRequest GenerateCertificateSigningRequest(Pki pki,EnrollementDTO enrollmentDTO){
 
-            X509Name x509NameAsSubject = Pkcs1xHandler.GenerateRelativeDistinguishedName(enrollmentDTO);
+            X509Name x509NameAsSubject = Pkcs1xHandler.GenerateRelativeDistinguishedName(enrollmentDTO);  
 
-            AsymmetricCipherKeyPair keyPair =  Pkcs1xHandler.GenerateKeyPair(Constants.RsaKeyLength.Length2048Bits); 
+            Asn1SignatureFactory asn1SignatureFactory = new Asn1SignatureFactory(Constants.Algorithm.SIGNING, pki.asymmetricCipherKeyPair.Private);
 
-            Asn1SignatureFactory asn1SignatureFactory = new Asn1SignatureFactory(Constants.Algorithm.SIGNING, keyPair.Private);
-
-            return new Pkcs10CertificationRequest(asn1SignatureFactory, x509NameAsSubject, keyPair.Public, null, keyPair.Private);
+            return new Pkcs10CertificationRequest(asn1SignatureFactory, x509NameAsSubject, pki.asymmetricCipherKeyPair.Public, null, pki.asymmetricCipherKeyPair.Private);
         }
 
+        [Obsolete("We do not need to generate self signed certificate")]
         public X509Certificate GenerateTemporarySelfSignedCertificate(Pki pki, BigInteger enrollmentID, int numberOfYear) { 
 
             X509Name x509NameSubject = pki.certificationRequest.GetCertificationRequestInfo().Subject;
@@ -83,9 +82,8 @@ namespace BCC_CA_App_Service.App
 
         }
 
-        public X509Certificate[] GenerateCertificate(String certificateString) {
+        public X509Certificate GenerateCertificate(String certificateString) {
 
-            X509Certificate[] certificates = new X509Certificate[2];
             byte[] bytes = Convert.FromBase64CharArray(certificateString.ToCharArray(), 0, certificateString.Length);
             CmsSignedData cmsSignedData = new CmsSignedData(bytes);
 
@@ -93,14 +91,12 @@ namespace BCC_CA_App_Service.App
             ICollection allCertificates =  store.GetMatches(null);
 
             IEnumerator enumerator =  allCertificates.GetEnumerator();
-            int i = 0;
-            while (enumerator.MoveNext() && i!=4) {
+            while (enumerator.MoveNext()) {
                 X509Certificate x509 = (X509Certificate)enumerator.Current;
-                Console.WriteLine("Server Generated Certificate: " + i + "\n "+ x509.ToString());
-                certificates[i] = x509;
-                i++;
+                Console.WriteLine("Server Generated Certificate: "+ x509.ToString());
+                return x509;
             }
-            return certificates;
+            throw new Exception("Certificate generation error");
         }
 
         public void SavePrivateKey() {
