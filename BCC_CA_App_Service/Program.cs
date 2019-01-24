@@ -26,8 +26,6 @@ namespace BCC_CA_App_Service
             else
                 Constants.PKCS11_LIBRARY_PATH = @"x32\eTPKCS11.dll";
 
-            smartCardHandler.StartSmartCardSession(out session);
-
             try
             {
                 while (true)

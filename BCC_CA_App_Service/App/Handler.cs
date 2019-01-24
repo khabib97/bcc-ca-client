@@ -10,25 +10,37 @@ namespace BCC_CA_App_Service.App
     {
         public void KeyGenerator(long serverGeneratedEnrollmentID)
         {
-            NetworkHandler networkHandler = new NetworkHandler();
-            SecurityHandler securityHandler = new SecurityHandler();
-            InputHandler inputHandler = new InputHandler();
-            Pkcs1xHandler pkcs1xHandler = new Pkcs1xHandler(); 
             EnrollementDTO enrollmentDTO = null;
             BigInteger enrollmentID = null;
-
             Pki pki = new Pki();
 
-            enrollmentDTO = networkHandler.GetEnrollmentInfo(Constants.PartialUrlOfApi.ENROLLMENT_INFO, serverGeneratedEnrollmentID);
+            GetEnrollmentDTO(out enrollmentDTO, serverGeneratedEnrollmentID);
             enrollmentID = BigInteger.ValueOf(enrollmentDTO.ID);
-            String userInputPassPhase = inputHandler.GetUserPassPhase();
-            securityHandler.CheckPassPhaseValidity(userInputPassPhase, enrollmentDTO.passPhase);
 
+            IsPassphaseCorrect(enrollmentDTO.passPhase); 
+
+            GetKeyPair(pki);
+            GetCSR(pki, enrollmentDTO);
             SaveKeys(pki, enrollmentDTO);
             //Generate .p7b in server
             GenerationRequestToServerForDotP7B(enrollmentDTO.ID, enrollmentDTO.keyStoreType, pki.certificationRequest);
             
-            Console.WriteLine("Success");
+            Console.WriteLine("Key Generation and Write: Done Successfully");
+        }
+
+        private void IsPassphaseCorrect(string passPhase)
+        {
+            SecurityHandler securityHandler = new SecurityHandler();
+            InputHandler inputHandler = new InputHandler();
+
+            String userInputedPassPhase = inputHandler.GetUserPassPhase();
+            securityHandler.CheckPassPhaseValidity(userInputedPassPhase, passPhase);
+        }
+
+        private void GetEnrollmentDTO(out EnrollementDTO enrollmentDTO, long serverGeneratedEnrollmentID)
+        {
+            NetworkHandler networkHandler = new NetworkHandler();
+            enrollmentDTO = networkHandler.GetEnrollmentInfo(Constants.PartialUrlOfApi.ENROLLMENT_INFO, serverGeneratedEnrollmentID);
         }
 
         private void GenerationRequestToServerForDotP7B(long iD, int keyStoreType, Pkcs10CertificationRequest certificationRequest)
@@ -37,15 +49,13 @@ namespace BCC_CA_App_Service.App
             networkHandler.PostCertificationRequest(iD, keyStoreType, certificationRequest);
         }
 
-        internal void SaveKeys(Pki pki, EnrollementDTO enrollmentDTO)
+        private void SaveKeys(Pki pki, EnrollementDTO enrollmentDTO)
         {
             
             switch (enrollmentDTO.keyStoreType)
             {
                 case Constants.KeyStore.SMART_CARD:
                     {
-                        GetKeyPair(pki);
-                        GetCSR(pki, enrollmentDTO);
                         WritePrivateKey(pki, enrollmentDTO);                       
                     }
                     break;
