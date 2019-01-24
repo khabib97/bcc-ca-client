@@ -1,16 +1,14 @@
 ﻿using System;
 using BCC_CA_App_Service.App;
 using System.IO;
+using Net.Pkcs11Interop.HighLevelAPI;
 
 namespace BCC_CA_App_Service
 {
     class Program
     {
-        static String deploymentMode = "Dev"; // Prod, Dev, Test
         public static String generationMode; // pub-priv key or certificate 
         public static String serverGeneratedEnrollmentID;
-        public static String baseRemoteURL;
-        public static int keyStoreType;
 
         static void Main(string[] args){
 
@@ -19,6 +17,16 @@ namespace BCC_CA_App_Service
             NetworkHandler networkHandler = new NetworkHandler();
             Pkcs1xHandler pkcs1xHandler = new Pkcs1xHandler();
             InputHandler inputHandler = new InputHandler();
+            SmartCardHandler smartCardHandler = new SmartCardHandler();
+            Session session = null;
+            
+
+            if (Environment.Is64BitProcess)
+                Constants.PKCS11_LIBRARY_PATH = @"x64\eTPKCS11.dll";
+            else
+                Constants.PKCS11_LIBRARY_PATH = @"x32\eTPKCS11.dll";
+
+            smartCardHandler.StartSmartCardSession(out session);
 
             try
             {
