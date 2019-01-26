@@ -1,7 +1,5 @@
 ﻿using System;
 using BCC_CA_App_Service.App;
-using System.IO;
-using Net.Pkcs11Interop.HighLevelAPI;
 
 namespace BCC_CA_App_Service
 {
@@ -14,12 +12,6 @@ namespace BCC_CA_App_Service
 
             Console.WriteLine("BCC-CA Background Service");
             Handler handler = new Handler();
-            NetworkHandler networkHandler = new NetworkHandler();
-            Pkcs1xHandler pkcs1xHandler = new Pkcs1xHandler();
-            InputHandler inputHandler = new InputHandler();
-            SmartCardHandler smartCardHandler = new SmartCardHandler();
-            Session session = null;
-            
 
             if (Environment.Is64BitProcess)
                 Constants.PKCS11_LIBRARY_PATH = @"x64\eTPKCS11.dll";
@@ -30,8 +22,8 @@ namespace BCC_CA_App_Service
             {
                 while (true)
                 {
-                    serverGeneratedEnrollmentID = inputHandler.GetEnrollmentID();
-                    generationMode = inputHandler.GetGenerationMode();
+                    serverGeneratedEnrollmentID = InputHandler.GetEnrollmentID();
+                    generationMode = InputHandler.GetGenerationMode();
                     switch (generationMode)
                     {
                         case Constants.GeneratedTypeCertificateOrKey.CERTIFICATE:
@@ -45,9 +37,6 @@ namespace BCC_CA_App_Service
             }
             catch (Exception ex){
                 System.Diagnostics.Debug.WriteLine( "Error : " + ex );
-            }
-            finally {
-
             }
 
             Console.Write("Press any key to quite: ");

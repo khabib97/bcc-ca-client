@@ -33,7 +33,7 @@ namespace BCC_CA_App_Service.App
             return enrollmentDTOForRemoteInit;
         }
      
-        internal void PopulateEnrollmentDTOFromApi(StreamReader reader, EnrollementDTO enrollmentDTO){
+        private void PopulateEnrollmentDTOFromApi(StreamReader reader, EnrollementDTO enrollmentDTO){
             int index = 0;
             String line = String.Empty;
 
@@ -46,7 +46,7 @@ namespace BCC_CA_App_Service.App
             }
         }
 
-        internal void LegacyEnrollementDTOInitialaization(int index, String line, EnrollementDTO enrollmentDTO)
+        private void LegacyEnrollementDTOInitialaization(int index, String line, EnrollementDTO enrollmentDTO)
         {
             switch (index) {
                 case 0:
@@ -123,12 +123,10 @@ namespace BCC_CA_App_Service.App
             StreamReader streamReader = new StreamReader(stream);
             String netStream = streamReader.ReadToEnd();
             Console.WriteLine(netStream);
-            return netStream;   
-              
-            
+            return netStream;         
         }
 
-        public void PostCertificationRequest( long enrollmentID, int keyStoreType, Pkcs10CertificationRequest certificationSigningRequest)
+        public void PostCertificateGenerationRequest( long enrollmentID, int keyStoreType, Pkcs10CertificationRequest certificationSigningRequest)
         {
             PemObject pemObject = new PemObject("CERTIFICATE REQUEST", certificationSigningRequest.GetEncoded());
             StringWriter str = new StringWriter();
@@ -151,6 +149,5 @@ namespace BCC_CA_App_Service.App
 
             System.Threading.Thread.Sleep(3000);
         }
-
     }
 }

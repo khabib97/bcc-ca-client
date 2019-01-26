@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Crypto.Prng;
@@ -11,9 +10,7 @@ using Org.BouncyCastle.X509;
 using System.Collections;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Cms;
-using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.X509.Store;
-using Org.BouncyCastle.Utilities.Encoders;
 
 
 namespace BCC_CA_App_Service.App
@@ -60,7 +57,7 @@ namespace BCC_CA_App_Service.App
         }
 
         [Obsolete("We do not need to generate self signed certificate")]
-        public X509Certificate GenerateTemporarySelfSignedCertificate(Pki pki, BigInteger enrollmentID, int numberOfYear) { 
+        public static X509Certificate GenerateTemporarySelfSignedCertificate(Pki pki, BigInteger enrollmentID, int numberOfYear) { 
 
             X509Name x509NameSubject = pki.certificationRequest.GetCertificationRequestInfo().Subject;
             X509V3CertificateGenerator x509V3CertificateGenerator = new X509V3CertificateGenerator();
@@ -82,7 +79,7 @@ namespace BCC_CA_App_Service.App
 
         }
 
-        public X509Certificate GenerateCertificate(String certificateString) {
+        public static X509Certificate GenerateCertificate(String certificateString) {
 
             byte[] bytes = Convert.FromBase64CharArray(certificateString.ToCharArray(), 0, certificateString.Length);
             CmsSignedData cmsSignedData = new CmsSignedData(bytes);
@@ -98,12 +95,6 @@ namespace BCC_CA_App_Service.App
             }
             throw new Exception("Certificate generation error");
         }
-
-        public void SavePrivateKey() {
-            //Pkcs12Store        
-        }
-
-        
 
     }
 }

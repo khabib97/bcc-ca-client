@@ -12,10 +12,8 @@ namespace BCC_CA_App_Service.App
 {
     class SmartCardHandler
     {  
-        public void StartSmartCardSession(out Session session) {
-            InputHandler inputHandler = new InputHandler();
-
-            String userPin = inputHandler.GetSmartCardPin();
+        public void Start(out Session session) {
+            String userPin = InputHandler.GetSmartCardPin();
 
             Pkcs11 pkcs11 = new Pkcs11(Constants.PKCS11_LIBRARY_PATH, AppType.SingleThreaded);
             
@@ -26,11 +24,11 @@ namespace BCC_CA_App_Service.App
             session.Login(CKU.CKU_USER, userPin);
         }
 
-        public void DestroySmartCardSession(Session session) {
+        public void Destroy(Session session) {
             session.Logout();
         }
 
-        public void DestroySmartCardSession(Session session,ObjectHandle publicKey, ObjectHandle privateKey){
+        public void Destroy(Session session,ObjectHandle publicKey, ObjectHandle privateKey){
             session.DestroyObject(publicKey);
             session.DestroyObject(privateKey);
             session.Logout();

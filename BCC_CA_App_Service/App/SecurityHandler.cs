@@ -8,7 +8,7 @@ namespace BCC_CA_App_Service.App
 {
     class SecurityHandler
     {
-        public void CheckPassPhaseValidity(String userInputPassPhase, String apiFetchPassPhase) {
+        public static void CheckPassPhaseValidity(String userInputPassPhase, String apiFetchPassPhase) {
             if (!userInputPassPhase.Equals(apiFetchPassPhase)) {
                 throw new System.Exception("Pass-phase mismatch");
             }
