@@ -53,7 +53,7 @@ namespace BCC_CA_App_Service.App
             {
                 case Constants.KeyStore.SMART_CARD:
                     {
-                        WritePrivateKey(pki, enrollmentDTO);                       
+                        WritePrivateKeyToSmartCard(pki, enrollmentDTO);                       
                     }
                     break;
                 case Constants.KeyStore.WINDOWS:
@@ -61,7 +61,7 @@ namespace BCC_CA_App_Service.App
             }
         }
 
-        private void WritePrivateKey(Pki pki, EnrollementDTO enrollmentDTO)
+        private void WritePrivateKeyToSmartCard(Pki pki, EnrollementDTO enrollmentDTO)
         {
             Pkcs1xHandler pkcs1xHandler = new Pkcs1xHandler();
             SmartCardHandler smartCardHandler = new SmartCardHandler();
