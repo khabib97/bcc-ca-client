@@ -3,6 +3,7 @@ using Net.Pkcs11Interop.HighLevelAPI;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
+using System.Windows.Forms;
 
 namespace BCC_CA_App_Service.App
 {
@@ -19,7 +20,8 @@ namespace BCC_CA_App_Service.App
             GetEnrollmentDTO(out enrollmentDTO, serverGeneratedEnrollmentID);
             enrollmentID = BigInteger.ValueOf(enrollmentDTO.ID);
 
-            IsPassphaseCorrect(InputHandler.GetUserPassPhase() ,enrollmentDTO.passPhase);
+            Application.Run(new PassPhaseForm(enrollmentDTO.passPhase));
+            //IsPassphaseCorrect(InputHandler.GetUserPassPhase() ,enrollmentDTO.passPhase);
 
             //populate AsymmetricCipherKeyPair
             GetKeyPair(pki);
@@ -33,11 +35,11 @@ namespace BCC_CA_App_Service.App
             Console.WriteLine("Key Generation and Write: Done Successfully");
         }
 
-        private void IsPassphaseCorrect(String userInputedPassPhase, String passPhase){
+        public void IsPassphaseCorrect(String userInputedPassPhase, String passPhase){
             SecurityHandler.CheckPassPhaseValidity(userInputedPassPhase, passPhase);
         }
 
-        private void GetEnrollmentDTO(out EnrollementDTO enrollmentDTO, long serverGeneratedEnrollmentID)
+        public void GetEnrollmentDTO(out EnrollementDTO enrollmentDTO, long serverGeneratedEnrollmentID)
         {
             enrollmentDTO = new NetworkHandler().GetEnrollmentInfo(Constants.PartialUrlOfApi.ENROLLMENT_INFO, serverGeneratedEnrollmentID);
         }
