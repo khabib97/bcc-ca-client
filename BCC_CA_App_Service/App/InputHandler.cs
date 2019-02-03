@@ -20,6 +20,11 @@ namespace BCC_CA_App_Service.App
             Console.WriteLine("Please input enrollmentID :");
             return Console.ReadLine();
         }
+        public static String GetKeystoreType()
+        {
+            Console.WriteLine("Please input 1 for WINDOWS, 2 for SMART CARD ");
+            return Console.ReadLine();
+        }
         public static String GetGenerationMode()
         {
             Console.WriteLine("Please write 'key' or 'certificate' :");

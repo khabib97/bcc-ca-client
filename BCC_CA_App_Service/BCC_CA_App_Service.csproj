@@ -60,6 +60,7 @@
     <Compile Include="App\SecurityHandler.cs" />
     <Compile Include="App\SmartCardHandler.cs" />
     <Compile Include="App\Utility.cs" />
+    <Compile Include="App\WindowsKeystoreHandler.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

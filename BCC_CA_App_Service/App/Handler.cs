@@ -57,6 +57,9 @@ namespace BCC_CA_App_Service.App
                     }
                     break;
                 case Constants.KeyStore.WINDOWS:
+                    {
+                        WritePrivateKeyToWindowsKeystore(pki, enrollmentDTO);
+                    }
                     break;
             }
         }
@@ -76,22 +79,62 @@ namespace BCC_CA_App_Service.App
             }
         }
 
-        public void CertificateGenerator(long erollmentID)
+        private void WritePrivateKeyToWindowsKeystore(Pki pki, EnrollementDTO enrollmentDTO)
         {
-            NetworkHandler networkHandler = new NetworkHandler();
+            WindowsKeystoreHandler windowsKeystoreHandler = new WindowsKeystoreHandler();
+            windowsKeystoreHandler.writePrivateKey(pki, enrollmentDTO.ID);
+
+        }
+
+
+        public void CertificateGeneratorForSmartCard( X509Certificate x509certificate)
+        {
             SmartCardHandler smartCardHandler = new SmartCardHandler();
 
             Session smartCardSession = null;
             {
                 smartCardHandler.Start(out smartCardSession);
-
-                String stringifyCertificate = networkHandler.GetCertificateByteArray(erollmentID);
-                X509Certificate x509certificate = Pkcs1xHandler.GenerateCertificate(stringifyCertificate);
+                
                 smartCardHandler.ImportCertificateToSmartCard(smartCardSession, x509certificate);
 
                 smartCardHandler.Destroy(smartCardSession);
             }
         }
+
+        public void CertificateGeneratorForWindowsKeystore(X509Certificate x509certificate,long enrollmentId)
+        {
+            WindowsKeystoreHandler windowsKeystoreHandler = new WindowsKeystoreHandler();
+            windowsKeystoreHandler.writeCertificate(x509certificate, enrollmentId);
+        }
+
+        public void CertificateGenerator(long serverGeneratedEnrollmentID, int KeyStore)
+        {
+            EnrollementDTO enrollmentDTO = null;
+
+            //Different methods populate different parameters of Pki   
+
+           // GetEnrollmentDTO(out enrollmentDTO, serverGeneratedEnrollmentID);
+            NetworkHandler networkHandler = new NetworkHandler();
+            String stringifyCertificate = networkHandler.GetCertificateByteArray(serverGeneratedEnrollmentID);
+            X509Certificate x509certificate = Pkcs1xHandler.GenerateCertificate(stringifyCertificate);
+
+            switch (KeyStore)
+            {
+                case Constants.KeyStore.SMART_CARD:
+                    {
+                        CertificateGeneratorForSmartCard(x509certificate);
+                    }
+                    break;
+                case Constants.KeyStore.WINDOWS:
+                    {
+                        CertificateGeneratorForWindowsKeystore(x509certificate, serverGeneratedEnrollmentID);
+                    }
+                    break;
+            }
+            Console.WriteLine("Certificate Writing: Done Successfully");
+        }
+
+
 
         private void GetCSR(Pki pki, EnrollementDTO enrollmentDTO)
         {

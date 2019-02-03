@@ -7,7 +7,8 @@ namespace BCC_CA_App_Service
     {
         public static String generationMode; // pub-priv key or certificate 
         public static String serverGeneratedEnrollmentID;
-
+        public static int keystore;
+        
         static void Main(string[] args){
 
             Console.WriteLine("BCC-CA Background Service");
@@ -27,7 +28,8 @@ namespace BCC_CA_App_Service
                     switch (generationMode)
                     {
                         case Constants.GeneratedTypeCertificateOrKey.CERTIFICATE:
-                            handler.CertificateGenerator(long.Parse(serverGeneratedEnrollmentID));
+                            keystore =int.Parse(InputHandler.GetKeystoreType())  ;
+                            handler.CertificateGenerator(long.Parse(serverGeneratedEnrollmentID), keystore);
                             break;
                         case Constants.GeneratedTypeCertificateOrKey.KEY:
                             handler.KeyGenerator(long.Parse(serverGeneratedEnrollmentID));
