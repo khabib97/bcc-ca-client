@@ -71,6 +71,18 @@ button:hover {
 }
 </style>
 <script type="text/javascript">
+
+
+		function smartCardCheck() {
+			if (document.getElementById('yesCheck').checked) {
+				document.getElementById('ifYes').style.display = 'block';
+			}
+			else if(document.getElementById('noCheck').checked)
+			{
+			document.getElementById('ifYes').style.display = 'none';
+			}
+
+			}
         function connect() {
             var ws = new WebSocket("ws://localhost:8080/service");
 			var enrollmentId = document.getElementById("enrollmentId").value;
@@ -78,18 +90,10 @@ button:hover {
 			var key = document.getElementById("key").value;
             ws.onopen = function () {
                alert("About to send data");
-			  // ws.send("Enrollment No :"+enrollmentId);
-			   /*if(key!=null)
-			   ws.send("Mode Type :"+key); 
-			   else
-			   ws.send("Mode Type :"+certificate);*/
-			   
 			   if(key!=null)
 			   ws.send(enrollmentId+" "+key); 
 			   else
 			   ws.send(enrollmentId+" "+certificate);
-		       
-			  // ws.send("Successful"); 
                alert("Message sent!");
             };
 
@@ -115,12 +119,13 @@ button:hover {
     <h1>BCC-CA</h1>
     <hr>
 
-    <label for="keyType"><b>Key Type</b></label><p>
-      <input type="radio" name="keyType" value="windows"> Windows<br>
-  <input type="radio" name="keyType" value="card"> Smart Card<br> </p>
-
-    <label for="enrollmentId"><b>Enrollment ID</b></label>
-    <input type="text" placeholder="please enter enrollment ID" name="enrollmentId" id="enrollmentId">
+   <label for="keyType"><b>Key Type</b></label><p>
+  <input type="radio" name="keyType" value="windows" onclick="smartCardCheck();" id="noCheck"> Windows<br>
+  <input type="radio" name="keyType" value="card" onclick="smartCardCheck();" id="yesCheck"> Smart Card<br> </p>
+  <div class="hidden" style="display:none" id="ifYes"><p><input type="radio" name="smartCard" value="card">Gemalto
+  <input type="radio" name="smartCard" value="card">EToken</p></div>
+<label for="enrollmentId"><b>Enrollment ID</b></label>
+ <input type="text" placeholder="please enter enrollment ID" name="enrollmentId" id="enrollmentId">
 
 
     <div class="clearfix">
