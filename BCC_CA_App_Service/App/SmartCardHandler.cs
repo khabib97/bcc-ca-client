@@ -35,10 +35,10 @@ namespace BCC_CA_App_Service.App
         }
 
         //Write Private Key to Smard Card
-        public void ImportPrivateKeyToSmartCard(Session session, Pki pki, long enrollmentID) {
+        public ObjectHandle ImportPrivateKeyToSmartCard(Session session, AsymmetricCipherKeyPair asymmetricCipherKeyPair, long enrollmentID) {
 
             BigInteger id = BigInteger.ValueOf(enrollmentID);
-            RsaPrivateCrtKeyParameters rsaPrivKey = (RsaPrivateCrtKeyParameters)pki.asymmetricCipherKeyPair.Private;
+            RsaPrivateCrtKeyParameters rsaPrivKey = (RsaPrivateCrtKeyParameters)asymmetricCipherKeyPair.Private;
             
             byte[] ckaId = id.ToByteArrayUnsigned();
 
@@ -62,7 +62,7 @@ namespace BCC_CA_App_Service.App
             objectAttributes.Add(new ObjectAttribute(CKA.CKA_EXPONENT_2, rsaPrivKey.DQ.ToByteArrayUnsigned()));
 
             //write object/private key to smart card
-            pki.privateKey =  session.CreateObject(objectAttributes);
+            return session.CreateObject(objectAttributes);
         }
 
         //Write temporary certificate to smart card

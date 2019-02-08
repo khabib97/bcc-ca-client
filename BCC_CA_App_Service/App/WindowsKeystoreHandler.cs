@@ -1,21 +1,16 @@
 ﻿using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BCC_CA_App_Service.App
 {
     class WindowsKeystoreHandler
     {
         // writes the private-key to container
-        public  void writePrivateKey(Pki pki, long enrollmentID)
+        public  void writePrivateKey(AsymmetricCipherKeyPair asymmetricCipherKeyPair, long enrollmentID)
         {
-            AsymmetricCipherKeyPair ackp= pki.asymmetricCipherKeyPair;
+            AsymmetricCipherKeyPair ackp= asymmetricCipherKeyPair;
             var rsaPriv = Org.BouncyCastle.Security.DotNetUtilities.ToRSA(ackp.Private as RsaPrivateCrtKeyParameters);
 
             // Setup RSACryptoServiceProvider with "KeyContainerName" set to "KeyContainer"+ enrollmentID

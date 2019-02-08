@@ -112,6 +112,11 @@ namespace BCC_CA_App_Service
         public static String PKCS11_LIBRARY_PATH ;
 
         public static String BASE_URL = "bcc-ca.gov.bd";
+        public static String PIN;
+        public static String PASSPHASE;
+
+        public static String GLOBAL_RESPONSE_MSG;
+        public static String GLOBAL_ERROR_MSG;
 
     }
 }

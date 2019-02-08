@@ -16,20 +16,27 @@ namespace BCC_CA_App_Service.App
         }
 
         public EnrollementDTO GetEnrollmentInfo( String apiEndpoint, long enrollmentID) {
-            string html = string.Empty;
 
+            String html = string.Empty;
             String URL = requestProtocol + Constants.BASE_URL +"/"+ apiEndpoint + "?serialNo=" + enrollmentID + "&actionType=key"  ;
+            EnrollementDTO enrollmentDTOForRemoteInit;
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
+                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
-            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                Stream stream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(stream);
 
-            EnrollementDTO enrollmentDTOForRemoteInit; 
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream)){
                 enrollmentDTOForRemoteInit = new EnrollementDTO();
                 PopulateEnrollmentDTOFromApi(reader, enrollmentDTOForRemoteInit);
             }
+            catch (Exception ex) {
+                System.Diagnostics.Debug.WriteLine("Enrollment Data Fetch Exception" + ex);
+                throw new Exception("Enrollment Data Fetch Exception");
+            }
+            
             return enrollmentDTOForRemoteInit;
         }
      

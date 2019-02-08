@@ -6,6 +6,7 @@ using System;
 
 namespace BCC_CA_App_Service.App
 {
+    [Obsolete("We have removed pki from our project")]
     public class Pki
     {
         public AsymmetricCipherKeyPair asymmetricCipherKeyPair { get; set; }

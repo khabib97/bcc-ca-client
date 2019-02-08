@@ -3,37 +3,39 @@ using Net.Pkcs11Interop.HighLevelAPI;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Crypto;
 
 namespace BCC_CA_App_Service.App
 {
     public class Handler
     {
-        public void KeyGenerator(long serverGeneratedEnrollmentID)
+        public void KeyGeneratorCaller(long serverGeneratedEnrollmentID)
         {
+            //confession of economic hitman 
             EnrollementDTO enrollmentDTO = null;
             BigInteger enrollmentID = null;
-            
-            //Different methods populate different parameters of Pki   
-            Pki pki = new Pki();
+            AsymmetricCipherKeyPair asymmetricCipherKeyPair;
+            Pkcs10CertificationRequest certificationRequest;
 
             GetEnrollmentDTO(out enrollmentDTO, serverGeneratedEnrollmentID);
             enrollmentID = BigInteger.ValueOf(enrollmentDTO.ID);
 
-            IsPassphaseCorrect(InputHandler.GetUserPassPhase() ,enrollmentDTO.passPhase);
+            IsPassphaseCorrect(InputHandler.GetUserPassPhase(), enrollmentDTO.passPhase);
 
             //populate AsymmetricCipherKeyPair
-            GetKeyPair(pki);
+            asymmetricCipherKeyPair = GetKeyPair();
             //populate Pkcs10CertificationRequest
-            GetCSR(pki, enrollmentDTO);
+            certificationRequest = GetCSR(asymmetricCipherKeyPair, enrollmentDTO);
             // save generated private key into windows or smart card store.
-            SaveKeys(pki, enrollmentDTO);
+            SaveKeys(asymmetricCipherKeyPair, enrollmentDTO);
             //Generate .p7b in server
-            GenerationRequestToServerForDotP7B(enrollmentDTO.ID, enrollmentDTO.keyStoreType, pki.certificationRequest);
-            
+            GenerationRequestToServerForDotP7B(enrollmentDTO.ID, enrollmentDTO.keyStoreType, certificationRequest);
+
             Console.WriteLine("Key Generation and Write: Done Successfully");
         }
 
-        private void IsPassphaseCorrect(String userInputedPassPhase, String passPhase){
+        private void IsPassphaseCorrect(String userInputedPassPhase, String passPhase)
+        {
             SecurityHandler.CheckPassPhaseValidity(userInputedPassPhase, passPhase);
         }
 
@@ -47,61 +49,63 @@ namespace BCC_CA_App_Service.App
             new NetworkHandler().PostCertificateGenerationRequest(iD, keyStoreType, certificationRequest);
         }
 
-        private void SaveKeys(Pki pki, EnrollementDTO enrollmentDTO)
+        private void SaveKeys(AsymmetricCipherKeyPair asymmetricCipherKeyPair, EnrollementDTO enrollmentDTO)
         {
             switch (enrollmentDTO.keyStoreType)
             {
                 case Constants.KeyStore.SMART_CARD:
                     {
-                        WritePrivateKeyToSmartCard(pki, enrollmentDTO);                       
+                        WritePrivateKeyToSmartCard(asymmetricCipherKeyPair, enrollmentDTO);
                     }
                     break;
                 case Constants.KeyStore.WINDOWS:
                     {
-                        WritePrivateKeyToWindowsKeystore(pki, enrollmentDTO);
+                        WritePrivateKeyToWindowsKeystore(asymmetricCipherKeyPair, enrollmentDTO);
                     }
                     break;
             }
         }
 
-        private void WritePrivateKeyToSmartCard(Pki pki, EnrollementDTO enrollmentDTO)
+        private ObjectHandle WritePrivateKeyToSmartCard(AsymmetricCipherKeyPair asymmetricCipherKeyPair, EnrollementDTO enrollmentDTO)
         {
             Pkcs1xHandler pkcs1xHandler = new Pkcs1xHandler();
             SmartCardHandler smartCardHandler = new SmartCardHandler();
+            ObjectHandle objectHandle;
 
             Session smartCardSession = null;
             {
                 smartCardHandler.Start(out smartCardSession);
 
-                smartCardHandler.ImportPrivateKeyToSmartCard(smartCardSession, pki, enrollmentDTO.ID);
+                objectHandle = smartCardHandler.ImportPrivateKeyToSmartCard(smartCardSession, asymmetricCipherKeyPair, enrollmentDTO.ID);
 
                 smartCardHandler.Destroy(smartCardSession);
             }
+
+            return objectHandle;
         }
 
-        private void WritePrivateKeyToWindowsKeystore(Pki pki, EnrollementDTO enrollmentDTO)
+        private void WritePrivateKeyToWindowsKeystore(AsymmetricCipherKeyPair asymmetricCipherKeyPair, EnrollementDTO enrollmentDTO)
         {
             WindowsKeystoreHandler windowsKeystoreHandler = new WindowsKeystoreHandler();
-            windowsKeystoreHandler.writePrivateKey(pki, enrollmentDTO.ID);
-
+            windowsKeystoreHandler.writePrivateKey(asymmetricCipherKeyPair, enrollmentDTO.ID);
         }
 
 
-        public void CertificateGeneratorForSmartCard( X509Certificate x509certificate)
+        public void CertificateGeneratorForSmartCard(X509Certificate x509certificate)
         {
             SmartCardHandler smartCardHandler = new SmartCardHandler();
 
             Session smartCardSession = null;
             {
                 smartCardHandler.Start(out smartCardSession);
-                
+
                 smartCardHandler.ImportCertificateToSmartCard(smartCardSession, x509certificate);
 
                 smartCardHandler.Destroy(smartCardSession);
             }
         }
 
-        public void CertificateGeneratorForWindowsKeystore(X509Certificate x509certificate,long enrollmentId)
+        public void CertificateGeneratorForWindowsKeystore(X509Certificate x509certificate, long enrollmentId)
         {
             WindowsKeystoreHandler windowsKeystoreHandler = new WindowsKeystoreHandler();
             windowsKeystoreHandler.writeCertificate(x509certificate, enrollmentId);
@@ -109,14 +113,8 @@ namespace BCC_CA_App_Service.App
 
         public void CertificateGenerator(long serverGeneratedEnrollmentID, int KeyStore)
         {
-            EnrollementDTO enrollmentDTO = null;
-
-            //Different methods populate different parameters of Pki   
-
-           // GetEnrollmentDTO(out enrollmentDTO, serverGeneratedEnrollmentID);
-            NetworkHandler networkHandler = new NetworkHandler();
-            String stringifyCertificate = networkHandler.GetCertificateByteArray(serverGeneratedEnrollmentID);
-            X509Certificate x509certificate = Pkcs1xHandler.GenerateCertificate(stringifyCertificate);
+            String stringifyCertificate = new NetworkHandler().GetCertificateByteArray(serverGeneratedEnrollmentID);
+            X509Certificate x509certificate = new Pkcs1xHandler().GenerateCertificate(stringifyCertificate);
 
             switch (KeyStore)
             {
@@ -134,16 +132,14 @@ namespace BCC_CA_App_Service.App
             Console.WriteLine("Certificate Writing: Done Successfully");
         }
 
-
-
-        private void GetCSR(Pki pki, EnrollementDTO enrollmentDTO)
+        private Pkcs10CertificationRequest GetCSR(AsymmetricCipherKeyPair asymmetricCipherKeyPair, EnrollementDTO enrollmentDTO)
         {
-            pki.certificationRequest = Pkcs1xHandler.GenerateCertificateSigningRequest(pki, enrollmentDTO);
+            return new Pkcs1xHandler().GenerateCertificateSigningRequest(asymmetricCipherKeyPair, enrollmentDTO);
         }
 
-        private void GetKeyPair(Pki pki)
+        private AsymmetricCipherKeyPair GetKeyPair()        
         {
-            pki.asymmetricCipherKeyPair = Pkcs1xHandler.GenerateKeyPair(Constants.RsaKeyLength.Length2048Bits);
+            return new Pkcs1xHandler().GenerateKeyPair(Constants.RsaKeyLength.Length2048Bits);
         }
 
         [Obsolete("Not needed ")]
@@ -160,5 +156,5 @@ namespace BCC_CA_App_Service.App
                 smartCardHandler.Destroy(smartCardSession, publicKey, privateKey);
             }
         }
-    } 
+    }
 }
