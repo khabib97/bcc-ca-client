@@ -9,15 +9,13 @@ namespace BCC_CA_App_Service.App
 {
     public class Handler
     {
-        public void KeyGeneratorCaller(long serverGeneratedEnrollmentID)
+        public string KeyGeneratorCaller(EnrollementDTO enrollmentDTO)
         {
             //confession of economic hitman 
-            EnrollementDTO enrollmentDTO = null;
             BigInteger enrollmentID = null;
             AsymmetricCipherKeyPair asymmetricCipherKeyPair;
             Pkcs10CertificationRequest certificationRequest;
-
-            GetEnrollmentDTO(out enrollmentDTO, serverGeneratedEnrollmentID);
+            
             enrollmentID = BigInteger.ValueOf(enrollmentDTO.ID);
 
             IsPassphaseCorrect(InputHandler.GetUserPassPhase(), enrollmentDTO.passPhase);
@@ -28,10 +26,10 @@ namespace BCC_CA_App_Service.App
             certificationRequest = GetCSR(asymmetricCipherKeyPair, enrollmentDTO);
             // save generated private key into windows or smart card store.
             SaveKeys(asymmetricCipherKeyPair, enrollmentDTO);
-            //Generate .p7b in server
-            GenerationRequestToServerForDotP7B(enrollmentDTO.ID, enrollmentDTO.keyStoreType, certificationRequest);
-
             Console.WriteLine("Key Generation and Write: Done Successfully");
+
+            //Generate .p7b in server
+            return GenerationRequestToServerForDotP7B(enrollmentDTO.ID, enrollmentDTO.keyStoreType, certificationRequest); 
         }
 
         private void IsPassphaseCorrect(String userInputedPassPhase, String passPhase)
@@ -44,9 +42,9 @@ namespace BCC_CA_App_Service.App
             enrollmentDTO = new NetworkHandler().GetEnrollmentInfo(Constants.PartialUrlOfApi.ENROLLMENT_INFO, serverGeneratedEnrollmentID);
         }
 
-        private void GenerationRequestToServerForDotP7B(long iD, int keyStoreType, Pkcs10CertificationRequest certificationRequest)
+        private string GenerationRequestToServerForDotP7B(long iD, int keyStoreType, Pkcs10CertificationRequest certificationRequest)
         {
-            new NetworkHandler().PostCertificateGenerationRequest(iD, keyStoreType, certificationRequest);
+            return  new NetworkHandler().PostCertificateGenerationRequest(iD, keyStoreType, certificationRequest);
         }
 
         private void SaveKeys(AsymmetricCipherKeyPair asymmetricCipherKeyPair, EnrollementDTO enrollmentDTO)
@@ -111,7 +109,7 @@ namespace BCC_CA_App_Service.App
             windowsKeystoreHandler.writeCertificate(x509certificate, enrollmentId);
         }
 
-        public void CertificateGenerator(long serverGeneratedEnrollmentID, int KeyStore)
+        public void CertificateGenerator(long serverGeneratedEnrollmentID, int KeyStore,string dotp7b)
         {
             String stringifyCertificate = new NetworkHandler().GetCertificateByteArray(serverGeneratedEnrollmentID);
             X509Certificate x509certificate = new Pkcs1xHandler().GenerateCertificate(stringifyCertificate);

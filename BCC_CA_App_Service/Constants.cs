@@ -111,7 +111,7 @@ namespace BCC_CA_App_Service
         public const String APPLICATION_NAME = @"Pkcs11Interop";
         public static String PKCS11_LIBRARY_PATH ;
 
-        public static String BASE_URL = "bcc-ca.gov.bd";
+        public static String BASE_URL = "localhost:8080/BCC-CA";
         public static String PIN;
         public static String PASSPHASE;
 

@@ -1,55 +1,61 @@
 ﻿using System;
 using System.IO;
 using BCC_CA_App_Service.App;
-using SuperWebSocket;
 
 namespace BCC_CA_App_Service
 {
     class Program
     {
-        public static int keystore;
-
         static void Main(string[] args)
         {
-
             Console.WriteLine("Start:");
-            WebSocketHandler.WebServerInit();
+            Microsoft.Win32.RegistryKey registryKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            try
+            {
+
+                WebSocketHandler.WebServerInit();
+                //Response response;
+                //Program.InvokeCertificatePrograme(1,33002,"",out response);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error : " + ex);
+                MessagePrompt.ShowDialog(ex.Message, "Internal Error!");
+            }
             Console.ReadKey();
         }
 
-        internal static void InvokePrograme(string generationMode, string enrollmentID, string storeType, WebSocketSession webSocketSession)
+        internal static void InvokeKeyPrograme(EnrollementDTO enrollementDTO, out Response response)
+        {
+            Handler handler = new Handler();
+            Boolean canMoveNext = true;
+            if (enrollementDTO.keyStoreType.Equals(Constants.KeyStore.SMART_CARD)) SetUpSmartCard(canMoveNext);
+            try
+            {
+                string dotP7bURI = handler.KeyGeneratorCaller(enrollementDTO);
+                response = new Response("dotp7b", "GET", 200, dotP7bURI);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error : " + ex);
+                response = new Response("error", "GET", 0, ex.Message);
+            }
+        }
+
+        internal static void InvokeCertificatePrograme(int storeType, long enrollmentID,String dotP7b, out Response response)
         {
             Handler handler = new Handler();
             Boolean canMoveNext = true;
             if (storeType.Equals(Constants.KeyStore.SMART_CARD)) SetUpSmartCard(canMoveNext);
-
-            if (canMoveNext)
+            try
             {
-                try
-                {
-                    switch (generationMode)
-                    {
-                        case Constants.GeneratedTypeCertificateOrKey.CERTIFICATE:
-                            keystore = int.Parse(storeType);
-                            handler.CertificateGenerator(long.Parse(enrollmentID), keystore);
-                            Constants.GLOBAL_RESPONSE_MSG = "Certificate Generated Successfully";
-                            break;
-                        case Constants.GeneratedTypeCertificateOrKey.KEY:
-                            handler.KeyGeneratorCaller(long.Parse(enrollmentID));
-                            Constants.GLOBAL_RESPONSE_MSG = "Key Generated Successfully";
-                            break;
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("Error : " + ex);
-                    //MessagePrompt.ShowDialog(ex.Message,"Internal Error!");
-                    Constants.GLOBAL_RESPONSE_MSG = ex.Message;
-                }
-                finally {
-                    webSocketSession.Send(Constants.GLOBAL_RESPONSE_MSG);
-                }
+                handler.CertificateGenerator(enrollmentID, storeType, dotP7b);
+                response = new Response("certificate", "GET", 200, "Certificate Generated Successfully");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error : " + ex);
+                response = new Response("certificate", "GET", 0, ex.Message);
             }
         }
 
@@ -70,7 +76,6 @@ namespace BCC_CA_App_Service
                 System.Diagnostics.Debug.WriteLine("DLL Not Found : " + ex);
                 MessagePrompt.ShowDialog("Pkcs11.dll Not Found! Update Your App", "Error!");
             }
-
         }
     }
 }

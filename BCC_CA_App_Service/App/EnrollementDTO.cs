@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 
@@ -49,6 +45,10 @@ namespace BCC_CA_App_Service.App
 
         public String getSerialNumber() {
             return identityType + "" + Utility.SHA1(identityNo);
+        }
+
+        public string ToString() {
+            return ("ID:" + ID + " First Name: " + firstName + " Last Name: " + lastName + " Email :" + email + " KeyStore: " + keyStoreType);
         }
 
     }

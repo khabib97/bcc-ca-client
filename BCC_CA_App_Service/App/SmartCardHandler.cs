@@ -39,6 +39,7 @@ namespace BCC_CA_App_Service.App
 
             BigInteger id = BigInteger.ValueOf(enrollmentID);
             RsaPrivateCrtKeyParameters rsaPrivKey = (RsaPrivateCrtKeyParameters)asymmetricCipherKeyPair.Private;
+            Console.WriteLine("Asymetric Public Key: "+ rsaPrivKey.PublicExponent.ToByteArrayUnsigned());
             
             byte[] ckaId = id.ToByteArrayUnsigned();
 
@@ -75,6 +76,7 @@ namespace BCC_CA_App_Service.App
                 throw new NotSupportedException("Currently only RSA keys are supported");
 
             RsaKeyParameters rsaPubKeyParams = (RsaKeyParameters)pubKeyParams;
+            Console.WriteLine("Certificate Public Key :" + rsaPubKeyParams.Exponent.ToByteArrayUnsigned());
 
             // Find corresponding private key
             List<ObjectAttribute> privKeySearchTemplate = new List<ObjectAttribute>();
