@@ -109,7 +109,7 @@ namespace BCC_CA_App_Service.App
                 ICollection allCertificates = store.GetMatches(null);
 
                 IEnumerator enumerator = allCertificates.GetEnumerator();
-                while (enumerator.MoveNext())
+                enumerator.MoveNext();
                 {
                     x509Certificate = (X509Certificate)enumerator.Current;
                     Console.WriteLine("Server Generated Certificate: " + x509Certificate.ToString());
