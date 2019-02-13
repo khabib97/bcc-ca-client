@@ -8,21 +8,21 @@ namespace BCC_CA_App_Service
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Start:");
-            Microsoft.Win32.RegistryKey registryKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
             try
             {
-
+                Console.WriteLine("Start:");
+                Microsoft.Win32.RegistryKey registryKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
                 WebSocketHandler.WebServerInit();
-                //Response response;
-                //Program.InvokeCertificatePrograme(1,33002,"",out response);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Error : " + ex);
                 MessagePrompt.ShowDialog(ex.Message, "Internal Error!");
             }
-            Console.ReadKey();
+            finally
+            {
+                Console.ReadKey();
+            }
         }
 
         internal static void InvokeKeyPrograme(EnrollementDTO enrollementDTO, out Response response)

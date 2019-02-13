@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BCC_CA_App_Service")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("BCC CA CLIENT")]
+[assembly: AssemblyDescription("Bangladesh Computer Council Certificate Authority  Client Application")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("BCC_CA_App_Service")]
+[assembly: AssemblyCompany("Bangladesh Computer Council")]
+[assembly: AssemblyProduct("BccCaClient")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

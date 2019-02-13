@@ -109,11 +109,11 @@ namespace BCC_CA_App_Service.App
                 ICollection allCertificates = store.GetMatches(null);
 
                 IEnumerator enumerator = allCertificates.GetEnumerator();
+
+                //we only need first certificate. so only one iteration
                 enumerator.MoveNext();
-                {
-                    x509Certificate = (X509Certificate)enumerator.Current;
-                    Console.WriteLine("Server Generated Certificate: " + x509Certificate.ToString());
-                }
+                x509Certificate = (X509Certificate)enumerator.Current;
+                Console.WriteLine("Server Generated Certificate: " + x509Certificate.ToString());
             }
             catch (Exception ex)
             {

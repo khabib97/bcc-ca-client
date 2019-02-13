@@ -4,6 +4,9 @@ using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Utilities.IO.Pem;
+using System.IO;
+using System.Net;
 
 namespace BCC_CA_App_Service.App
 {
@@ -29,7 +32,7 @@ namespace BCC_CA_App_Service.App
             Console.WriteLine("Key Generation and Write: Done Successfully");
 
             //Generate .p7b in server
-            return GenerationRequestToServerForDotP7B(enrollmentDTO.ID, enrollmentDTO.keyStoreType, certificationRequest); 
+            return DotP7BGenerationUri(enrollmentDTO.ID, enrollmentDTO.keyStoreType, certificationRequest); 
         }
 
         private void IsPassphaseCorrect(String userInputedPassPhase, String passPhase)
@@ -42,9 +45,24 @@ namespace BCC_CA_App_Service.App
             enrollmentDTO = new NetworkHandler().GetEnrollmentInfo(Constants.PartialUrlOfApi.ENROLLMENT_INFO, serverGeneratedEnrollmentID);
         }
 
-        private string GenerationRequestToServerForDotP7B(long iD, int keyStoreType, Pkcs10CertificationRequest certificationRequest)
+        private string DotP7BGenerationUri(long iD, int keyStoreType, Pkcs10CertificationRequest certificationRequest)
         {
-            return  new NetworkHandler().PostCertificateGenerationRequest(iD, keyStoreType, certificationRequest);
+            PemObject pemObject = new PemObject("CERTIFICATE REQUEST", certificationRequest.GetEncoded());
+
+            string csr = null;
+            using (StringWriter stringWriter = new StringWriter())
+            {
+                PemWriter pemWriter = new PemWriter(stringWriter);
+                pemWriter.WriteObject(pemObject);
+                csr = stringWriter.ToString();
+                stringWriter.Close();
+            }
+
+            String URI = Constants.PartialUrlOfApi.CRS + "?"
+                + "csr=" + WebUtility.UrlEncode(csr) + "&serialNo=" + iD + "&keystoreType="
+                + keyStoreType + "&mode=csr"; ;
+
+            return URI;
         }
 
         private void SaveKeys(AsymmetricCipherKeyPair asymmetricCipherKeyPair, EnrollementDTO enrollmentDTO)
@@ -111,7 +129,8 @@ namespace BCC_CA_App_Service.App
 
         public void CertificateGenerator(long serverGeneratedEnrollmentID, int KeyStore,string dotp7b)
         {
-            String stringifyCertificate = new NetworkHandler().GetCertificateByteArray(serverGeneratedEnrollmentID);
+            //String stringifyCertificate = new NetworkHandler().GetCertificateByteArray(serverGeneratedEnrollmentID);
+            String stringifyCertificate = dotp7b;
             X509Certificate x509certificate = new Pkcs1xHandler().GenerateCertificate(stringifyCertificate);
 
             switch (KeyStore)

@@ -133,7 +133,7 @@ namespace BCC_CA_App_Service.App
             return netStream;         
         }
 
-        public string PostCertificateGenerationRequest( long enrollmentID, int keyStoreType, Pkcs10CertificationRequest certificationSigningRequest)
+        public void PostCertificateGenerationRequest( long enrollmentID, int keyStoreType, Pkcs10CertificationRequest certificationSigningRequest)
         {
             PemObject pemObject = new PemObject("CERTIFICATE REQUEST", certificationSigningRequest.GetEncoded());
             StringWriter str = new StringWriter();
@@ -145,8 +145,7 @@ namespace BCC_CA_App_Service.App
                 + "csr=" + WebUtility.UrlEncode(csr) + "&serialNo=" + enrollmentID + "&keystoreType="
                 + keyStoreType + "&mode=csr"; ;
 
-            //return URI;
-            String URL = requestProtocol + "localhost:8080/BCC-CA/" + URI;
+            String URL = requestProtocol + Constants.BASE_URL + URI;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
             request.Method = "POST";
             request.ContentType = "application/x-www-form-urlencoded; charset=utf-8";
@@ -155,8 +154,6 @@ namespace BCC_CA_App_Service.App
             Stream stream = response.GetResponseStream();
             StreamReader streamReader = new StreamReader(stream);
             Console.WriteLine(streamReader.ReadToEnd());
-            return "";
-            //System.Threading.Thread.Sleep(3000);*/
         }
     }
 }

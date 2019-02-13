@@ -40,7 +40,7 @@ namespace BCC_CA_App_Service.App
 
         private static void WsServer_NewMessageReceived(WebSocketSession session, String _request)
         {
-            Console.WriteLine(_request);
+            System.Diagnostics.Debug.WriteLine(_request);
             Response response = new Response("default", "GET", 200, "default echo msg");
             try
             {
@@ -54,17 +54,16 @@ namespace BCC_CA_App_Service.App
                         break;
                     case "key":
                         EnrollementDTO enrollmentDTO = requestObj.data.ToObject<EnrollementDTO>();
-                        Console.WriteLine(enrollmentDTO.ToString());
+                        System.Diagnostics.Debug.WriteLine(enrollmentDTO.ToString());
                         Program.InvokeKeyPrograme(enrollmentDTO,out response);
                         break;
                     case "certificate":
                         enrollmentDTO = requestObj.data.ToObject<EnrollementDTO>();
-                        Console.WriteLine(requestObj.msg);
-                        Console.WriteLine(enrollmentDTO.ToString());
+                        System.Diagnostics.Debug.WriteLine(requestObj.msg);
                         Program.InvokeCertificatePrograme(enrollmentDTO.keyStoreType, enrollmentDTO.ID,requestObj.msg, out response);
                         break;
                     case "default":
-                        Console.WriteLine(requestObj.msg);
+                        System.Diagnostics.Debug.WriteLine(requestObj.msg);
                         break;
 
                 }
