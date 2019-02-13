@@ -13,15 +13,24 @@ namespace BCC_CA_App_Service.App
     class SmartCardHandler
     {  
         public void Start(out Session session) {
-            String userPin = InputHandler.GetSmartCardPin();
+            try
+            {
+                String userPin = InputHandler.GetSmartCardPin();
 
-            Pkcs11 pkcs11 = new Pkcs11(Constants.PKCS11_LIBRARY_PATH, AppType.SingleThreaded);
-            
-            List<Slot> slots = pkcs11.GetSlotList(SlotsType.WithTokenPresent);
-            Slot matchingSlot = slots[0];
-            session = matchingSlot.OpenSession(SessionType.ReadWrite);
-  
-            session.Login(CKU.CKU_USER, userPin);
+                Pkcs11 pkcs11 = new Pkcs11(Constants.PKCS11_LIBRARY_PATH, AppType.SingleThreaded);
+
+                List<Slot> slots = pkcs11.GetSlotList(SlotsType.WithTokenPresent);
+                Slot matchingSlot = slots[0];
+                session = matchingSlot.OpenSession(SessionType.ReadWrite);
+
+                session.Login(CKU.CKU_USER, userPin);
+            }
+            catch (Exception ex) {
+                System.Diagnostics.Debug.WriteLine("Smart Card Access Problem "+ ex);
+                MessagePrompt.ShowDialog("Can not access smart card. Please try again.", "Smart Card Window");
+                throw new Exception("Can not access smart card");
+
+            }
         }
 
         public void Destroy(Session session) {
@@ -39,7 +48,6 @@ namespace BCC_CA_App_Service.App
 
             BigInteger id = BigInteger.ValueOf(enrollmentID);
             RsaPrivateCrtKeyParameters rsaPrivKey = (RsaPrivateCrtKeyParameters)asymmetricCipherKeyPair.Private;
-            Console.WriteLine("Asymetric Public Key: "+ rsaPrivKey.PublicExponent.ToByteArrayUnsigned());
             
             byte[] ckaId = id.ToByteArrayUnsigned();
 
@@ -76,7 +84,6 @@ namespace BCC_CA_App_Service.App
                 throw new NotSupportedException("Currently only RSA keys are supported");
 
             RsaKeyParameters rsaPubKeyParams = (RsaKeyParameters)pubKeyParams;
-            Console.WriteLine("Certificate Public Key :" + rsaPubKeyParams.Exponent.ToByteArrayUnsigned());
 
             // Find corresponding private key
             List<ObjectAttribute> privKeySearchTemplate = new List<ObjectAttribute>();

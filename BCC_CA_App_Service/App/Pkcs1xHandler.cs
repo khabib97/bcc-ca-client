@@ -113,7 +113,6 @@ namespace BCC_CA_App_Service.App
                 //we only need first certificate. so only one iteration
                 enumerator.MoveNext();
                 x509Certificate = (X509Certificate)enumerator.Current;
-                Console.WriteLine("Server Generated Certificate: " + x509Certificate.ToString());
             }
             catch (Exception ex)
             {

@@ -37,7 +37,15 @@ namespace BCC_CA_App_Service.App
 
         private void IsPassphaseCorrect(String userInputedPassPhase, String passPhase)
         {
-            SecurityHandler.CheckPassPhaseValidity(userInputedPassPhase, passPhase);
+            try
+            {
+                SecurityHandler.CheckPassPhaseValidity(userInputedPassPhase, passPhase);
+            }
+            catch (Exception ex) {
+                System.Diagnostics.Debug.WriteLine(ex);
+                MessagePrompt.ShowDialog("Passphase mismatch. Please try again","Passphase Window");
+                throw new Exception(ex.Message);
+            }
         }
 
         private void GetEnrollmentDTO(out EnrollementDTO enrollmentDTO, long serverGeneratedEnrollmentID)
@@ -102,8 +110,15 @@ namespace BCC_CA_App_Service.App
 
         private void WritePrivateKeyToWindowsKeystore(AsymmetricCipherKeyPair asymmetricCipherKeyPair, EnrollementDTO enrollmentDTO)
         {
-            WindowsKeystoreHandler windowsKeystoreHandler = new WindowsKeystoreHandler();
-            windowsKeystoreHandler.writePrivateKey(asymmetricCipherKeyPair, enrollmentDTO.ID);
+            try
+            {
+                WindowsKeystoreHandler windowsKeystoreHandler = new WindowsKeystoreHandler();
+                windowsKeystoreHandler.writePrivateKey(asymmetricCipherKeyPair, enrollmentDTO.ID);
+            }catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Failed to write private key inside windows store",ex);
+                throw new Exception("Failed to write private key inside windows store");
+            }
         }
 
 
@@ -123,8 +138,15 @@ namespace BCC_CA_App_Service.App
 
         public void CertificateGeneratorForWindowsKeystore(X509Certificate x509certificate, long enrollmentId)
         {
-            WindowsKeystoreHandler windowsKeystoreHandler = new WindowsKeystoreHandler();
-            windowsKeystoreHandler.writeCertificate(x509certificate, enrollmentId);
+            try
+            {
+                WindowsKeystoreHandler windowsKeystoreHandler = new WindowsKeystoreHandler();
+                windowsKeystoreHandler.writeCertificate(x509certificate, enrollmentId);
+            }
+            catch (Exception ex) {
+                System.Diagnostics.Debug.WriteLine("Failed to write Certificate in Win Store" + ex);
+                throw new Exception("Failed to write Certificate inside windows store");
+            }
         }
 
         public void CertificateGenerator(long serverGeneratedEnrollmentID, int KeyStore,string dotp7b)

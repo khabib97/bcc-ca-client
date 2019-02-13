@@ -37,7 +37,7 @@ namespace BCC_CA_App_Service.App
             var rsaPrivate = new RSACryptoServiceProvider(csp);
             rsaPrivate.PersistKeyInCsp = true;
 
-            Console.Write("rsaprivate key:" + rsaPrivate.ToXmlString(true));
+            //Console.Write("rsaprivate key:" + rsaPrivate.ToXmlString(true));
             return rsaPrivate;
         }
         public void writeCertificate(Org.BouncyCastle.X509.X509Certificate cert, long enrollmentID)

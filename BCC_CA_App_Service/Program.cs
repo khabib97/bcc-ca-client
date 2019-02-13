@@ -17,7 +17,7 @@ namespace BCC_CA_App_Service
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Error : " + ex);
-                MessagePrompt.ShowDialog(ex.Message, "Internal Error!");
+                MessagePrompt.ShowDialog(ex.Message, "Internal Application Error!");
             }
             finally
             {
@@ -62,9 +62,9 @@ namespace BCC_CA_App_Service
         private static void SetUpSmartCard(Boolean canMoveNext)
         {
             if (Environment.Is64BitProcess)
-                Constants.PKCS11_LIBRARY_PATH = @"x64\eTPKCS11.dll";
+                Constants.PKCS11_LIBRARY_PATH = @"x64eTPKCS11.dll";
             else
-                Constants.PKCS11_LIBRARY_PATH = @"x32\eTPKCS11.dll";
+                Constants.PKCS11_LIBRARY_PATH = @"x32eTPKCS11.dll";
 
             try
             {
