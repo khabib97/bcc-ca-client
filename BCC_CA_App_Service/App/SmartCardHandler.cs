@@ -12,10 +12,10 @@ namespace BCC_CA_App_Service.App
 {
     class SmartCardHandler
     {  
-        public void Start(out Session session) {
+        public void Start(string pin,out Session session) {
             try
             {
-                String userPin = InputHandler.GetSmartCardPin();
+                String userPin = pin;
 
                 Pkcs11 pkcs11 = new Pkcs11(Constants.PKCS11_LIBRARY_PATH, AppType.SingleThreaded);
 
@@ -27,7 +27,7 @@ namespace BCC_CA_App_Service.App
             }
             catch (Exception ex) {
                 System.Diagnostics.Debug.WriteLine("Smart Card Access Problem "+ ex);
-                MessagePrompt.ShowDialog("Can not access smart card. Please try again.", "Smart Card Window");
+                //MessagePrompt.ShowDialog("Can not access smart card. Please try again.", "Smart Card Window");
                 throw new Exception("Can not access smart card");
 
             }

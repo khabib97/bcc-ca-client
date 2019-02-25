@@ -12,7 +12,7 @@ namespace BCC_CA_App_Service.App
 {
     public class Handler
     {
-        public string KeyGeneratorCaller(EnrollementDTO enrollmentDTO)
+        public string KeyGeneratorCaller(EnrollementDTO enrollmentDTO,string pin,string passphase)
         {
             //confession of economic hitman 
             BigInteger enrollmentID = null;
@@ -21,14 +21,14 @@ namespace BCC_CA_App_Service.App
             
             enrollmentID = BigInteger.ValueOf(enrollmentDTO.ID);
 
-            IsPassphaseCorrect(InputHandler.GetUserPassPhase(), enrollmentDTO.passPhase);
+            IsPassphaseCorrect(passphase, enrollmentDTO.passPhase);
 
             //populate AsymmetricCipherKeyPair
             asymmetricCipherKeyPair = GetKeyPair();
             //populate Pkcs10CertificationRequest
             certificationRequest = GetCSR(asymmetricCipherKeyPair, enrollmentDTO);
             // save generated private key into windows or smart card store.
-            SaveKeys(asymmetricCipherKeyPair, enrollmentDTO);
+            SaveKeys(pin,asymmetricCipherKeyPair, enrollmentDTO);
             Console.WriteLine("Key Generation and Write: Done Successfully");
 
             //Generate .p7b in server
@@ -43,7 +43,7 @@ namespace BCC_CA_App_Service.App
             }
             catch (Exception ex) {
                 System.Diagnostics.Debug.WriteLine(ex);
-                MessagePrompt.ShowDialog("Passphase mismatch. Please try again","Passphase Window");
+                //MessagePrompt.ShowDialog("Passphase mismatch. Please try again","Passphase Window");
                 throw new Exception(ex.Message);
             }
         }
@@ -73,13 +73,13 @@ namespace BCC_CA_App_Service.App
             return URI;
         }
 
-        private void SaveKeys(AsymmetricCipherKeyPair asymmetricCipherKeyPair, EnrollementDTO enrollmentDTO)
+        private void SaveKeys(string pin,AsymmetricCipherKeyPair asymmetricCipherKeyPair, EnrollementDTO enrollmentDTO)
         {
             switch (enrollmentDTO.keyStoreType)
             {
                 case Constants.KeyStore.SMART_CARD:
                     {
-                        WritePrivateKeyToSmartCard(asymmetricCipherKeyPair, enrollmentDTO);
+                        WritePrivateKeyToSmartCard(pin, asymmetricCipherKeyPair, enrollmentDTO);
                     }
                     break;
                 case Constants.KeyStore.WINDOWS:
@@ -90,7 +90,7 @@ namespace BCC_CA_App_Service.App
             }
         }
 
-        private ObjectHandle WritePrivateKeyToSmartCard(AsymmetricCipherKeyPair asymmetricCipherKeyPair, EnrollementDTO enrollmentDTO)
+        private ObjectHandle WritePrivateKeyToSmartCard(string pin,AsymmetricCipherKeyPair asymmetricCipherKeyPair, EnrollementDTO enrollmentDTO)
         {
             Pkcs1xHandler pkcs1xHandler = new Pkcs1xHandler();
             SmartCardHandler smartCardHandler = new SmartCardHandler();
@@ -98,7 +98,7 @@ namespace BCC_CA_App_Service.App
 
             Session smartCardSession = null;
             {
-                smartCardHandler.Start(out smartCardSession);
+                smartCardHandler.Start(pin,out smartCardSession);
 
                 objectHandle = smartCardHandler.ImportPrivateKeyToSmartCard(smartCardSession, asymmetricCipherKeyPair, enrollmentDTO.ID);
 
@@ -122,13 +122,13 @@ namespace BCC_CA_App_Service.App
         }
 
 
-        public void CertificateGeneratorForSmartCard(X509Certificate x509certificate)
+        public void CertificateGeneratorForSmartCard(string pin,X509Certificate x509certificate)
         {
             SmartCardHandler smartCardHandler = new SmartCardHandler();
 
             Session smartCardSession = null;
             {
-                smartCardHandler.Start(out smartCardSession);
+                smartCardHandler.Start(pin,out smartCardSession);
 
                 smartCardHandler.ImportCertificateToSmartCard(smartCardSession, x509certificate);
 
@@ -149,7 +149,7 @@ namespace BCC_CA_App_Service.App
             }
         }
 
-        public void CertificateGenerator(long serverGeneratedEnrollmentID, int KeyStore,string dotp7b)
+        public void CertificateGenerator(string pin,long serverGeneratedEnrollmentID, int KeyStore,string dotp7b)
         {
             //String stringifyCertificate = new NetworkHandler().GetCertificateByteArray(serverGeneratedEnrollmentID);
             String stringifyCertificate = dotp7b;
@@ -159,7 +159,7 @@ namespace BCC_CA_App_Service.App
             {
                 case Constants.KeyStore.SMART_CARD:
                     {
-                        CertificateGeneratorForSmartCard(x509certificate);
+                        CertificateGeneratorForSmartCard(pin,x509certificate);
                     }
                     break;
                 case Constants.KeyStore.WINDOWS:
@@ -190,7 +190,7 @@ namespace BCC_CA_App_Service.App
             ObjectHandle privateKey = null;
             Session smartCardSession = null;
             {
-                smartCardHandler.Start(out smartCardSession);
+                smartCardHandler.Start("",out smartCardSession);
                 smartCardHandler.KeyPairGenerator(smartCardSession, out publicKey, out privateKey);
                 smartCardHandler.Destroy(smartCardSession, publicKey, privateKey);
             }

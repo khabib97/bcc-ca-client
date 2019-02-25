@@ -1,15 +1,30 @@
 ﻿using System;
 using System.IO;
 using BCC_CA_App_Service.App;
+using System.Runtime.InteropServices;
 
 namespace BCC_CA_App_Service
 {
     class Program
     {
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        const int SW_HIDE = 0;
+        const int SW_SHOW = 5;
+
+       
+
         static void Main(string[] args)
         {
             try
             {
+                var handle = GetConsoleWindow();
+                ShowWindow(handle, SW_HIDE);
+
                 Console.WriteLine("Start:");
                 Microsoft.Win32.RegistryKey registryKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
                 WebSocketHandler.WebServerInit();
@@ -17,7 +32,7 @@ namespace BCC_CA_App_Service
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Error : " + ex);
-                MessagePrompt.ShowDialog(ex.Message, "Internal Application Error!");
+                //MessagePrompt.ShowDialog(ex.Message, "Internal Application Error!");
             }
             finally
             {
@@ -25,14 +40,14 @@ namespace BCC_CA_App_Service
             }
         }
 
-        internal static void InvokeKeyPrograme(EnrollementDTO enrollementDTO, out Response response)
+        internal static void InvokeKeyPrograme(EnrollementDTO enrollementDTO,string pin, string passphase, out Response response)
         {
             Handler handler = new Handler();
             Boolean canMoveNext = true;
             if (enrollementDTO.keyStoreType.Equals(Constants.KeyStore.SMART_CARD)) SetUpSmartCard(canMoveNext);
             try
             {
-                string dotP7bURI = handler.KeyGeneratorCaller(enrollementDTO);
+                string dotP7bURI = handler.KeyGeneratorCaller(enrollementDTO,pin,passphase);
                 response = new Response("dotp7b", "GET", 200, dotP7bURI);
             }
             catch (Exception ex)
@@ -42,20 +57,20 @@ namespace BCC_CA_App_Service
             }
         }
 
-        internal static void InvokeCertificatePrograme(int storeType, long enrollmentID,String dotP7b, out Response response)
+        internal static void InvokeCertificatePrograme(string pin,int storeType, long enrollmentID,String dotP7b, out Response response)
         {
             Handler handler = new Handler();
             Boolean canMoveNext = true;
             if (storeType.Equals(Constants.KeyStore.SMART_CARD)) SetUpSmartCard(canMoveNext);
             try
             {
-                handler.CertificateGenerator(enrollmentID, storeType, dotP7b);
-                response = new Response("certificate", "GET", 200, "Certificate Generated Successfully");
+                handler.CertificateGenerator(pin,enrollmentID, storeType, dotP7b);
+                response = new Response("certificate", "GET", 200, "Congratulations! Certificate Generated Successfully.");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Error : " + ex);
-                response = new Response("certificate", "GET", 0, ex.Message);
+                response = new Response("certificate", "GET", 0, "Error "+ex.Message);
             }
         }
 
@@ -74,7 +89,7 @@ namespace BCC_CA_App_Service
             {
                 canMoveNext = false;
                 System.Diagnostics.Debug.WriteLine("DLL Not Found : " + ex);
-                MessagePrompt.ShowDialog("Pkcs11.dll Not Found! Update Your App", "Error!");
+                //MessagePrompt.ShowDialog("Pkcs11.dll Not Found! Update Your App", "Error!");
             }
         }
     }

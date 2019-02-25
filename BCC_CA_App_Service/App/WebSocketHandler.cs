@@ -54,12 +54,32 @@ namespace BCC_CA_App_Service.App
                     case "key":
                         EnrollementDTO enrollmentDTO = requestObj.data.ToObject<EnrollementDTO>();
                         System.Diagnostics.Debug.WriteLine(enrollmentDTO.ToString());
-                        Program.InvokeKeyPrograme(enrollmentDTO,out response);
+                        
+                        String[] dataArray = requestObj.msg.Split(' ');
+                        string passphase = dataArray[0].Trim();
+                        string pin = "";
+                        if (enrollmentDTO.keyStoreType == 2) {
+                            pin = dataArray[1].Trim();
+                        }
+                        Program.InvokeKeyPrograme(enrollmentDTO,pin,passphase,out response);
                         break;
                     case "certificate":
                         enrollmentDTO = requestObj.data.ToObject<EnrollementDTO>();
                         //System.Diagnostics.Debug.WriteLine(requestObj.msg);
-                        Program.InvokeCertificatePrograme(enrollmentDTO.keyStoreType, enrollmentDTO.ID,requestObj.msg, out response);
+                        dataArray = requestObj.method.Split(' ');
+                        passphase = dataArray[0].Trim();
+                        pin = "";
+                        if (enrollmentDTO.keyStoreType == 2) pin = dataArray[1].Trim();
+
+                        if (enrollmentDTO.passPhase.Equals(passphase))
+                        {
+                            Program.InvokeCertificatePrograme(pin, enrollmentDTO.keyStoreType, enrollmentDTO.ID, requestObj.msg, out response);
+                        }
+                        else {
+                            System.Diagnostics.Debug.WriteLine("Error : " + "Passphase mismatch");
+                            response = new Response("certificate", "GET", 0, "Error " + "Passphase mismatch");
+                            
+                        }
                         break;
                     case "default":
                         System.Diagnostics.Debug.WriteLine(requestObj.msg);
