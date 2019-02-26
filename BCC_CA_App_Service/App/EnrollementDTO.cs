@@ -40,7 +40,7 @@ namespace BCC_CA_App_Service.App
 
         //need for digital signature purpose
         public String getCommonName(){
-            return lastName.Trim() + " " + firstName.Trim();
+            return firstName.Trim() + " " + lastName.Trim();
         }
 
         public String getSerialNumber() {

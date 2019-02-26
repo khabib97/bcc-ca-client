@@ -21,5 +21,23 @@ namespace BCC_CA_App_Service.App
             }
             return stringBuilder.ToString();
         }
+
+        public static String SHA256(String data)
+        {
+
+            byte[] shaBytes;
+            SHA256 sha256 = new SHA256CryptoServiceProvider();
+
+            shaBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(data));
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            foreach (byte shaByte in shaBytes)
+            {
+                var hex = shaByte.ToString("x2");
+                stringBuilder.Append(hex);
+            }
+            return stringBuilder.ToString();
+        }
     }
 }

@@ -24,7 +24,7 @@ namespace BCC_CA_App_Service
             {
                 var handle = GetConsoleWindow();
                 ShowWindow(handle, SW_HIDE);
-
+                //Console.WriteLine(Utility.SHA256("User123"));
                 Console.WriteLine("Start:");
                 Microsoft.Win32.RegistryKey registryKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
                 WebSocketHandler.WebServerInit();

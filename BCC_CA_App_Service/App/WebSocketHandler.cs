@@ -38,8 +38,19 @@ namespace BCC_CA_App_Service.App
         {
         }
 
+        private static void DataArrayToPinPassPhase(string[] dataArray,out string pin,out string passphase,int storeType) {
+            passphase = dataArray[0].Trim();
+            pin = "";
+            if (storeType == 2)
+            {
+                pin = dataArray[1].Trim();
+            }
+        }
+
         private static void WsServer_NewMessageReceived(WebSocketSession session, String _request)
         {
+            string passphase = "";
+            string pin = "";
             Response response = new Response("default", "GET", 200, "default echo msg");
             try
             {
@@ -52,26 +63,20 @@ namespace BCC_CA_App_Service.App
                         response = new Response("default", "GET", 200, "connection establish");
                         break;
                     case "key":
+
                         EnrollementDTO enrollmentDTO = requestObj.data.ToObject<EnrollementDTO>();
-                        System.Diagnostics.Debug.WriteLine(enrollmentDTO.ToString());
-                        
-                        String[] dataArray = requestObj.msg.Split(' ');
-                        string passphase = dataArray[0].Trim();
-                        string pin = "";
-                        if (enrollmentDTO.keyStoreType == 2) {
-                            pin = dataArray[1].Trim();
-                        }
+                        //System.Diagnostics.Debug.WriteLine(enrollmentDTO.ToString());
+                        DataArrayToPinPassPhase(requestObj.msg.Split(' '),out pin,out passphase, enrollmentDTO.keyStoreType);
+
                         Program.InvokeKeyPrograme(enrollmentDTO,pin,passphase,out response);
+                        Reset(pin, passphase);
                         break;
                     case "certificate":
                         enrollmentDTO = requestObj.data.ToObject<EnrollementDTO>();
                         //System.Diagnostics.Debug.WriteLine(requestObj.msg);
-                        dataArray = requestObj.method.Split(' ');
-                        passphase = dataArray[0].Trim();
-                        pin = "";
-                        if (enrollmentDTO.keyStoreType == 2) pin = dataArray[1].Trim();
-
-                        if (enrollmentDTO.passPhase.Equals(passphase))
+                        DataArrayToPinPassPhase(requestObj.method.Split(' '),out pin,out passphase, enrollmentDTO.keyStoreType);
+                        
+                        if (enrollmentDTO.passPhase.Equals(Utility.SHA256(passphase)))
                         {
                             Program.InvokeCertificatePrograme(pin, enrollmentDTO.keyStoreType, enrollmentDTO.ID, requestObj.msg, out response);
                         }
@@ -80,6 +85,7 @@ namespace BCC_CA_App_Service.App
                             response = new Response("certificate", "GET", 0, "Error " + "Passphase mismatch");
                             
                         }
+                        Reset(pin, passphase);
                         break;
                     case "default":
                         System.Diagnostics.Debug.WriteLine(requestObj.msg);
@@ -96,6 +102,12 @@ namespace BCC_CA_App_Service.App
                 string json = JsonConvert.SerializeObject(response);
                 session.Send(json);
             }
+        }
+
+        private static void Reset(string pin, string passphase)
+        {
+            pin = "";
+            passphase = "";
         }
     }
 
