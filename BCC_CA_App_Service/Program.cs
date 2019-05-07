@@ -2,6 +2,8 @@
 using System.IO;
 using BCC_CA_App_Service.App;
 using System.Runtime.InteropServices;
+using static BCC_CA_App_Service.App.HttpController;
+using static BCC_CA_App_Service.App.Utility;
 
 namespace BCC_CA_App_Service
 {
@@ -23,11 +25,13 @@ namespace BCC_CA_App_Service
             try
             {
                 var handle = GetConsoleWindow();
-                ShowWindow(handle, SW_HIDE);
+               // ShowWindow(handle, SW_HIDE);
+                ShowWindow(handle, SW_SHOW);
                 //Console.WriteLine(Utility.SHA256("User123"));
-                Console.WriteLine("Start:");
+                //Console.WriteLine("Start:");
                 Microsoft.Win32.RegistryKey registryKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
                 WebSocketHandler.WebServerInit();
+                HttpHandler.WebServerInit();
             }
             catch (Exception ex)
             {
@@ -40,11 +44,12 @@ namespace BCC_CA_App_Service
             }
         }
 
-        internal static void InvokeKeyPrograme(EnrollementDTO enrollementDTO,string pin, string passphase, out Response response)
+        internal static Response InvokeKeyPrograme(EnrollementDTO enrollementDTO,string pin, string passphase)
         {
             Handler handler = new Handler();
             Boolean canMoveNext = true;
             if (enrollementDTO.keyStoreType.Equals(Constants.KeyStore.SMART_CARD)) SetUpSmartCard(canMoveNext);
+            Response response = null ;
             try
             {
                 string dotP7bURI = handler.KeyGeneratorCaller(enrollementDTO,pin,passphase);
@@ -55,6 +60,7 @@ namespace BCC_CA_App_Service
                 System.Diagnostics.Debug.WriteLine("Error : " + ex);
                 response = new Response("error", "GET", 0, ex.Message);
             }
+            return response;
         }
 
         internal static void InvokeCertificatePrograme(string pin,int storeType, long enrollmentID,String dotP7b, out Response response)

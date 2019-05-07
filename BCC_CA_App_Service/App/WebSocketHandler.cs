@@ -3,6 +3,7 @@ using SuperWebSocket;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Linq;
+using static BCC_CA_App_Service.App.Utility;
 //using System.Web.Script.Serisalization;
 
 namespace BCC_CA_App_Service.App
@@ -60,7 +61,7 @@ namespace BCC_CA_App_Service.App
                 switch (actionSwitch)
                 {
                     case "welcome":
-                        response = new Response("default", "GET", 200, "connection establish");
+                        response = new Utility.Response("default", "GET", 200, "connection establish");
                         break;
                     case "key":
 
@@ -68,7 +69,7 @@ namespace BCC_CA_App_Service.App
                         //System.Diagnostics.Debug.WriteLine(enrollmentDTO.ToString());
                         DataArrayToPinPassPhase(requestObj.msg.Split(' '),out pin,out passphase, enrollmentDTO.keyStoreType);
 
-                        Program.InvokeKeyPrograme(enrollmentDTO,pin,passphase,out response);
+                        Program.InvokeKeyPrograme(enrollmentDTO,pin,passphase);
                         Reset(pin, passphase);
                         break;
                     case "certificate":
@@ -110,7 +111,7 @@ namespace BCC_CA_App_Service.App
             passphase = "";
         }
     }
-
+/*
     public class Request
     {
         public string action { get; set; }
@@ -128,8 +129,8 @@ namespace BCC_CA_App_Service.App
         }
         public int status { get; set; }
         public string action { get; set; }
-        public string method { get; set;}
+        public string method { get; set ;} 
         public string msg { get; set; }
         
-    }
+    }*/
 }
