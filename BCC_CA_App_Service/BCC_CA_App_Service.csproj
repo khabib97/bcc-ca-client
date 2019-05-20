@@ -84,8 +84,10 @@
     <Compile Include="App\Pkcs1xHandler.cs" />
     <Compile Include="App\Pki.cs" />
     <Compile Include="App\SecurityHandler.cs" />
+    <Compile Include="App\ServerStarter.cs" />
     <Compile Include="App\SmartCardHandler.cs" />
     <Compile Include="App\Utility.cs" />
+    <Compile Include="App\WebServer.cs" />
     <Compile Include="App\WebSocketHandler.cs" />
     <Compile Include="App\WindowsKeystoreHandler.cs" />
     <Compile Include="Constants.cs" />

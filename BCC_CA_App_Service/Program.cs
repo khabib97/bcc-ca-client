@@ -23,11 +23,13 @@ namespace BCC_CA_App_Service
             try
             {
                 var handle = GetConsoleWindow();
-                ShowWindow(handle, SW_HIDE);
+               // ShowWindow(handle, SW_HIDE);
+                ShowWindow(handle, SW_SHOW);
                 //Console.WriteLine(Utility.SHA256("User123"));
                 Console.WriteLine("Start:");
                 Microsoft.Win32.RegistryKey registryKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                WebSocketHandler.WebServerInit();
+                //WebSocketHandler.WebServerInit();
+                ServerStarter.WebServerInit();
             }
             catch (Exception ex)
             {
