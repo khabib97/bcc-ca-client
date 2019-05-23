@@ -1,11 +1,8 @@
-﻿
-
-using System;
+﻿using System;
 using System.Net;
 using System.Threading;
-using System.Linq;
 using System.Text;
- 
+
 namespace BCC_CA_App_Service.App
 {
     public class HttpServer
@@ -35,8 +32,7 @@ namespace BCC_CA_App_Service.App
             _listener.Start();
         }
 
-        public HttpServer(Func<HttpListenerRequest, string> method, params string[] prefixes)
-            : this(prefixes, method) { }
+        public HttpServer(Func<HttpListenerRequest, string> method, params string[] prefixes) : this(prefixes, method) { }
 
         public void Run()
         {
@@ -54,10 +50,9 @@ namespace BCC_CA_App_Service.App
                             {
                                 string rstr = _responderMethod(ctx.Request);
                                 byte[] buf = Encoding.UTF8.GetBytes(rstr);
-                                
-                                ctx.Response.AppendHeader("Access-Control-Allow-Origin","*");
+
+                                ctx.Response.AppendHeader("Access-Control-Allow-Origin", "*");
                                 ctx.Response.AppendHeader("Access-Control-Allow-Methods", "*");
-                                // ctx.Response.AppendHeader("Access-Control-Allow-Headers", "*");
                                 ctx.Response.AppendHeader("Access-Control-Allow-Credentials", "true");
                                 ctx.Response.AppendHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
@@ -65,7 +60,9 @@ namespace BCC_CA_App_Service.App
                                 ctx.Response.OutputStream.Write(buf, 0, buf.Length);
 
                             }
-                            catch { } // suppress any exceptions
+                            catch (Exception ex){
+                                Console.WriteLine(ex);
+                            } // suppress any exceptions
                             finally
                             {
                                 // always close the stream
@@ -74,7 +71,10 @@ namespace BCC_CA_App_Service.App
                         }, _listener.GetContext());
                     }
                 }
-                catch { } // suppress any exceptions
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                } // suppress any exceptions
             });
         }
 
