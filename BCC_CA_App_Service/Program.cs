@@ -56,6 +56,7 @@ namespace BCC_CA_App_Service
             {
                 System.Diagnostics.Debug.WriteLine("Error : " + ex);
                 response = new Response("error", "GET", 0, ex.Message);
+                throw ex;
             }
         }
 
@@ -73,6 +74,7 @@ namespace BCC_CA_App_Service
             {
                 System.Diagnostics.Debug.WriteLine("Error : " + ex);
                 response = new Response("certificate", "GET", 0, "Error "+ex.Message);
+                throw ex;
             }
         }
 
@@ -91,6 +93,7 @@ namespace BCC_CA_App_Service
             {
                 canMoveNext = false;
                 System.Diagnostics.Debug.WriteLine("DLL Not Found : " + ex);
+                throw ex;
                 //MessagePrompt.ShowDialog("Pkcs11.dll Not Found! Update Your App", "Error!");
             }
         }

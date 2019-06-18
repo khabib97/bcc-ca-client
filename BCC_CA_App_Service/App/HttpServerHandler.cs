@@ -30,14 +30,14 @@ namespace BCC_CA_App_Service.App
             passphase = "";
         }
 
-        public static string SendResponse(System.Net.HttpListenerRequest request)
+        public static string SendResponse(System.Net.HttpListenerRequest request, System.Net.HttpListenerResponse _response)
         {
             string json;
             using (System.IO.StreamReader streamReader = new System.IO.StreamReader(request.InputStream))
             {
                 string passphase = "";
                 string pin = "";
-                Response response = new Response("default", "GET", 200, "default echo msg");
+                Response customResponse = new Response("default", "GET", 200, "default echo msg");
                 try
                 {
                     string jsonString = streamReader.ReadToEnd();
@@ -47,7 +47,7 @@ namespace BCC_CA_App_Service.App
                     switch (actionSwitch)
                     {
                         case "welcome":
-                            response = new Response("default", "GET", 200, "connection establish");
+                            customResponse = new Response("default", "GET", 200, "connection establish");
                             break;
                         case "key":
 
@@ -55,7 +55,7 @@ namespace BCC_CA_App_Service.App
                             //System.Diagnostics.Debug.WriteLine(enrollmentDTO.ToString());
                             DataArrayToPinPassPhase(requestObj.msg.Split(' '), out pin, out passphase, enrollmentDTO.keyStoreType);
 
-                            Program.InvokeKeyPrograme(enrollmentDTO, pin, passphase, out response);
+                            Program.InvokeKeyPrograme(enrollmentDTO, pin, passphase, out customResponse);
                             Reset(pin, passphase);
                             break;
                         case "certificate":
@@ -65,12 +65,12 @@ namespace BCC_CA_App_Service.App
 
                             if (enrollmentDTO.passPhase.Equals(Utility.SHA256(passphase)))
                             {
-                                Program.InvokeCertificatePrograme(pin, enrollmentDTO.keyStoreType, enrollmentDTO.ID, requestObj.msg, out response);
+                                Program.InvokeCertificatePrograme(pin, enrollmentDTO.keyStoreType, enrollmentDTO.ID, requestObj.msg, out customResponse);
                             }
                             else
                             {
                                 System.Diagnostics.Debug.WriteLine("Error : " + "Passphase mismatch");
-                                response = new Response("certificate", "GET", 0, "Error " + "Passphase mismatch");
+                                customResponse = new Response("certificate", "GET", 0, "Error " + "Passphase mismatch");
 
                             }
                             Reset(pin, passphase);
@@ -83,11 +83,13 @@ namespace BCC_CA_App_Service.App
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine(ex);
-                    response = new Response("error", "GET", 0, "Server has faced some problem");
+                    _response.StatusCode = 400;
+                    customResponse = new Response("error", "GET", 0, "Server has faced some problem");
                 }
                 finally
                 {
-                    json = JsonConvert.SerializeObject(response);
+                    _response.StatusCode = 400;
+                    json = JsonConvert.SerializeObject(customResponse);
 
                 }
                 return json;

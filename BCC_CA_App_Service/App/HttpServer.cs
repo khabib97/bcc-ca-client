@@ -8,9 +8,9 @@ namespace BCC_CA_App_Service.App
     public class HttpServer
     {
         private readonly HttpListener _listener = new HttpListener();
-        private readonly Func<HttpListenerRequest, string> _responderMethod;
+        private readonly Func<HttpListenerRequest,HttpListenerResponse, string> _responderMethod;
 
-        public HttpServer(string[] prefixes, Func<HttpListenerRequest, string> method)
+        public HttpServer(string[] prefixes, Func<HttpListenerRequest,HttpListenerResponse, string> method)
         {
             if (!HttpListener.IsSupported)
                 throw new NotSupportedException(
@@ -32,7 +32,7 @@ namespace BCC_CA_App_Service.App
             _listener.Start();
         }
 
-        public HttpServer(Func<HttpListenerRequest, string> method, params string[] prefixes) : this(prefixes, method) { }
+        public HttpServer(Func<HttpListenerRequest,HttpListenerResponse, string> method, params string[] prefixes) : this(prefixes, method) { }
 
         public void Run()
         {
@@ -48,7 +48,7 @@ namespace BCC_CA_App_Service.App
                             var ctx = c as HttpListenerContext;
                             try
                             {
-                                string rstr = _responderMethod(ctx.Request);
+                                string rstr = _responderMethod(ctx.Request, ctx.Response);
                                 byte[] buf = Encoding.UTF8.GetBytes(rstr);
 
                                 ctx.Response.AppendHeader("Access-Control-Allow-Origin", "*");
