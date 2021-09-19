@@ -29,6 +29,7 @@ namespace BCC_CA_App_Service
                 Console.WriteLine("Start:");
                 Microsoft.Win32.RegistryKey registryKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
                 //WebSocketHandler.WebServerInit();
+                registryKey.SetValue("CaClient", System.Reflection.Assembly.GetExecutingAssembly().Location);
                 HttpServerHandler.WebServerInit();
             }
             catch (Exception ex)

@@ -88,7 +88,7 @@ namespace BCC_CA_App_Service.App
                 }
                 finally
                 {
-                    _response.StatusCode = 400;
+                    //_response.StatusCode = 400;
                     json = JsonConvert.SerializeObject(customResponse);
 
                 }

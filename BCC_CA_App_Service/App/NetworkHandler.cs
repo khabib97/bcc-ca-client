@@ -3,12 +3,14 @@ using Org.BouncyCastle.Utilities.IO.Pem;
 using System;
 using System.IO;
 using System.Net;
+using System.Configuration;
 
 namespace BCC_CA_App_Service.App
 {
     class NetworkHandler
     {
-        String requestProtocol = "http://";
+        //String requestProtocol = "http://";
+        String baseUrl = ConfigurationManager.AppSettings["baseUrl"];
         String certificateUriLocation = "storage";
 
         public EnrollementDTO GetDummyEnrollmentDTO(){
@@ -18,7 +20,7 @@ namespace BCC_CA_App_Service.App
         public EnrollementDTO GetEnrollmentInfo( String apiEndpoint, long enrollmentID) {
 
             String html = string.Empty;
-            String URL = requestProtocol + Constants.BASE_URL +"/"+ apiEndpoint + "?serialNo=" + enrollmentID + "&actionType=key"  ;
+            String URL = baseUrl + "/"+ apiEndpoint + "?serialNo=" + enrollmentID + "&actionType=key"  ;
             EnrollementDTO enrollmentDTOForRemoteInit;
             try
             {
@@ -121,7 +123,7 @@ namespace BCC_CA_App_Service.App
 
         public String GetCertificateByteArray(long enrollementID){
             //http://localhost:8080/BCC-CA/storage/enrollementID.p7b
-            String URL = requestProtocol + Constants.BASE_URL + "/" + certificateUriLocation + "/" + enrollementID + Constants.FileExtension.CERTIFICATE;
+            String URL = baseUrl + "/" + certificateUriLocation + "/" + enrollementID + Constants.FileExtension.CERTIFICATE;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
@@ -145,7 +147,7 @@ namespace BCC_CA_App_Service.App
                 + "csr=" + WebUtility.UrlEncode(csr) + "&serialNo=" + enrollmentID + "&keystoreType="
                 + keyStoreType + "&mode=csr"; ;
 
-            String URL = requestProtocol + Constants.BASE_URL + URI;
+            String URL = baseUrl + URI;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
             request.Method = "POST";
             request.ContentType = "application/x-www-form-urlencoded; charset=utf-8";
